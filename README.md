@@ -4,6 +4,8 @@
 
 ![ZYaller](https://raw.githubusercontent.com/ZYallers/ZYaller/master/static/image/password.jpg)
 
+记录整理和分享学习生活工作中遇到的各种有价值有用和问题的精华文章。丰富阅历，开阔视野，记录成长过程点滴！
+
 ## 标签
 - [PHP](https://github.com/ZYallers/ZYaller/tree/master/tag/php)
 - [JavaScript](https://github.com/ZYallers/ZYaller/tree/master/tag/javascript)
