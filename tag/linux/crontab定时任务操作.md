@@ -6,7 +6,7 @@
 在做Pgsql的备份利用crontab进行定时操作， 使用起来比较方便。故分享
 具体的定时编辑命令：`crontab -e`
 首先从crontab的文件分析使用策略，root用户下，在/etc下有一个文件crontab，其内容如下
-```
+```bash
 [root@myzk ~]# cat /etc/crontab
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -31,7 +31,7 @@ HOME=/
 在root用户下，可以直接vim /etc/crontab文件进行脚本的添加定时任务脚本，而在其他普通用户下可以通过`crontab –e`进行脚本的添加编辑完成，可以用`crontab –l`进行查看脚本信息。
 
 定时命令脚本解析：
-```
+```bash
 从表格中可以看出脚本格式如下：
 minute hour day month week user-name command
 minute---分钟 （0-59）
@@ -45,7 +45,7 @@ minute---分钟 （0-59）
 以具体例子进行分析定时脚本：
 
 pgslq.sh为需要执行的脚本，内容为需要进行的备份操作或者其他任务脚本
-```
+```bash
 1 * * * * /home/postgres/pgsql.sh
 表示的是每小时的第一分钟执行该脚本
 2 3 * * * /home/postgres/pgsql.sh
@@ -56,7 +56,7 @@ pgslq.sh为需要执行的脚本，内容为需要进行的备份操作或者其
 表示的是每月的1点1分进行脚本的执行
 ```
 比较容易犯的错误是通常会把每小时的第一分钟按做每分钟执行一次，这点要注意两者的区别：
-```
+```bash
 1 * * * * /home/postgres/pgsql.sh
 表示的是每小时的第一分钟执行该脚本
 */1 * * * * /home/postgres/pgsql.sh
@@ -65,7 +65,7 @@ pgslq.sh为需要执行的脚本，内容为需要进行的备份操作或者其
 因此这里要记住”/”这个符号带来的区别。
 
 “-”的用法：
-```
+```bash
 0 10 * * 1-3 / home/postgres/pgsql.sh
 表示的是每个周一到周三的早上10点执行该脚本
 0 10 * * 1、3、5 / home/postgres/pgsql.sh

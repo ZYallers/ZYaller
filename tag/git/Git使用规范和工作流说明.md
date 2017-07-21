@@ -16,22 +16,22 @@
 
 * 必须「MUST」设置 Git 用户相关信息，如下所示：
 
-    ```
-    # 中文名 公司邮箱
-    # 张三 zhangsan@domain.com
-    git config --global user.name "张三"
-    git config --global user.email "zhangsan@domain.com"
-    ```
+```bash
+# 中文名 公司邮箱
+# 张三 zhangsan@domain.com
+git config --global user.name "张三"
+git config --global user.email "zhangsan@domain.com"
+```
 
 * 必须「MUST」设置如下编码配置：
 
-    ```
-    # 原样checkout，Unix LF 换行格式commit。
-    git config --global core.autocrlf input
-    # UTF-8 编码
-    git config --global i18n.logoutputencoding utf8
-    git config --global i18n.commitencoding utf8
-    ```
+```bash
+# 原样checkout，Unix LF 换行格式commit。
+git config --global core.autocrlf input
+# UTF-8 编码
+git config --global i18n.logoutputencoding utf8
+git config --global i18n.commitencoding utf8
+```
 
 ## 3 使用 `.gitignore` file
 
@@ -64,33 +64,33 @@ https://www.kernel.org/pub/software/scm/git/docs/gitattributes.html
 以下命令行示例用于讲解日常新功能开发时的基本操作。
 
 1. 首先克隆 `ssh://git@github.com/xxx/test.git`
-	```
-    # ~/home
-    git clone ssh://git@github.com/xxx/test.git
-    ```
+```bash
+# ~/home
+git clone ssh://git@github.com/xxx/test.git
+```
 
 2. 建立分支 `develop` 和 `feature/user-extension`
-    ```
-    # ~/home
-    cd test
-    (master)$: git branch develop
-    (master)$: git branch feature/user-extension
-    ```
+```bash
+# ~/home
+cd test
+(master)$: git branch develop
+(master)$: git branch feature/user-extension
+```
 
 3. 切换当前分支到 `feature/user-extension`，开发新功能
-    ```
-    (master)$: git checkout feature/user-extension
-    (feature/user-extension)$: git add xxx
-    (feature/user-extension)$: git commit -am 'Added function user-add' -s
-    ## BLABLABLA
-    (feature/user-extension)$: git add xxx
-    (feature/user-extension)$: git commit -am 'Added function user-delete' -s
-    ```
+```bash
+(master)$: git checkout feature/user-extension
+(feature/user-extension)$: git add xxx
+(feature/user-extension)$: git commit -am 'Added function user-add' -s
+## BLABLABLA
+(feature/user-extension)$: git add xxx
+(feature/user-extension)$: git commit -am 'Added function user-delete' -s
+```
 
 4. 功能开发完成后，Push 本地 `feature/user-extension` 至 remote `feature/user-extentsion`
-    ```
-    git push origin feature/user-extension
-    ```
+```bash
+git push origin feature/user-extension
+```
 
 5. 建议在 `http://github.com/` 上发起 Pull Request  之前 rebase
 

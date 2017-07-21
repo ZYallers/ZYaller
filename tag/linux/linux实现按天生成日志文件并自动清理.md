@@ -8,7 +8,7 @@
 
 之前任务队列轮循输出的内容都默认写在一个文件里，现在改成每天生成一个日志文件。
 `act_wdraw_accesslog_rds_list.sh`
-```shell
+```bash
 for (( i=0; i<60; i=(i+step) )); do 
   $($phpexec -c $phpini -f $index_file weightDraw/Stat logAccess/30 >> /tmp/act_wdraw_access_log/`date +%Y-%m-%d`.log 2>&1) 
    sleep $step
@@ -20,11 +20,11 @@ exit 0
 日志文件虽然按天分开了，但其实还是没有解决占用磁盘越来越大的问题，所以需要加入自动删除计划任务，一般日志保存不会很久，我这里默认删除30天前的日志文件。
 
 新建自动清理shell脚本 act_wdraw_accesslog_cleaner.sh
-```shell
+```bash
 #!/bin/sh
 find /tmp/act_wdraw_access_log/ -mtime +30 -name "*.log" -exec rm -rf {} \;
 ```
 添加crontab计划任务。每天凌晨3点15分执行该清理日志脚本
-```shell
+```bash
 15 3 * * * /apps/sh/act_wdraw_accesslog_cleaner.sh > /dev/null 2>&1
 ```

@@ -7,11 +7,11 @@
 ## 解决方法
 
 ### 1、提交全部
-```
+```bash
 git commit -a
 ```
 ### 2、如果不想提交全部,那么可以通过添加 -i 选项
-```
+```bash
 git commit file/to/path -i -m "merge"
 ```
 上述情况一般出现在解决本地working copy冲突时出现, 本地文件修改(手工merge)完成后,要添加并提交,使得本地版本处于clean的状态。这样以后git pull就不再会报错！

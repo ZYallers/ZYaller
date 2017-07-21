@@ -8,7 +8,7 @@ Linux crontab 命令，最小的执行时间是一分钟。如需要在小于一
 
 在CI框架下创建一个方法做执行动作。该方法从redis队列里弹出元素，然后批量写入数据库。
 
-```
+```php
 /**
  * 访问数据入库，只允许cli命令行运行，默认每次插入30条数据，从redis list中弹出获取数据,crontab由运维设置
  * @param int $rows 每次插入数据条数
@@ -53,7 +53,7 @@ public function logAccess($rows = 30)
 
 crontab -e 输入以下语句，然后 :wq 保存退出。
 
-```
+```bash
 * * * * * source /apps/sh/.server_env.sh;/apps/svr/php/bin/php -c /apps/conf/php/php.ini -f  /apps/data/work/php/act.hxsapp.cc/index.php weightDraw/Stat logAccess/30 > /tmp/act_wdraw_accesslog_rds_list.log 2>&1
 * * * * * sleep 10; source /apps/sh/.server_env.sh;/apps/svr/php/bin/php -c /apps/conf/php/php.ini -f  /apps/data/work/php/act.hxsapp.cc/index.php weightDraw/Stat logAccess/30 > /tmp/act_wdraw_accesslog_rds_list.log 2>&1 
 * * * * * sleep 20; source /apps/sh/.server_env.sh;/apps/svr/php/bin/php -c /apps/conf/php/php.ini -f  /apps/data/work/php/act.hxsapp.cc/index.php weightDraw/Stat logAccess/30 > /tmp/act_wdraw_accesslog_rds_list.log 2>&1
@@ -64,7 +64,7 @@ crontab -e 输入以下语句，然后 :wq 保存退出。
 
 使用 tail -f 查看执行情况，可以见到log每10秒被写入一条记录。
 
-```
+```bash
 fdipzone@ubuntu:~$ tail -f /tmp/act_wdraw_accesslog_rds_list.log
 2017-05-24 15:10:01->Into table 1 data, llen:0.
 2017-05-24 15:10:11->List empty.
@@ -92,7 +92,7 @@ fdipzone@ubuntu:~$ tail -f /tmp/act_wdraw_accesslog_rds_list.log
 
 act_wdraw_accesslog_rds_list.sh
 
-```shell
+```bash
 #!/bin/bash
 phpexec=/apps/svr/php/bin/php
 phpini=/apps/conf/php/php.ini
@@ -108,11 +108,11 @@ exit 0
 ```
 
 crontab -e 输入以下语句，然后:wq 保存退出。
-```shell
+```bash
 * * * * * /apps/sh/act_wdraw_accesslog_rds_list.sh
 ```
 使用 tail -f 查看执行情况，可以见到log每2秒执行一次。
-```
+```bash
 2017-05-24 15:10:01->Into table 1 data, llen:0.
 2017-05-24 15:10:03->List empty.
 2017-05-24 15:11:05->List empty.
@@ -131,6 +131,6 @@ crontab -e 输入以下语句，然后:wq 保存退出。
 
 如果60不能整除间隔的秒数，则需要调整执行的时间。例如需要每7秒执行一次，就需要找到7与60的最小公倍数，7与60的最小公倍数是420（即7分钟）。
 则act_wdraw_accesslog_rds_list.sh step的值为7，循环结束条件i<420， crontab -e可以输入以下语句来实现
-```
+```bash
 */7 * * * * /apps/sh/act_wdraw_accesslog_rds_list.sh
 ```
