@@ -20,6 +20,7 @@
 - [高并发](https://github.com/ZYallers/ZYaller/tree/master/tag/high-concurrent)
 - [程序员](https://github.com/ZYallers/ZYaller/tree/master/tag/programmer)
 - [网络安全](https://github.com/ZYallers/ZYaller/tree/master/tag/network-safety)
+- [Chrome](https://github.com/ZYallers/ZYaller/tree/master/tag/chrome)
 
 ## 开发
 
