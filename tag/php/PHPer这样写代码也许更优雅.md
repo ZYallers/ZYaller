@@ -2,7 +2,7 @@
 
 > 转载自：http://tigerb.cn/2017/06/01/artisan
 
-![](https://raw.githubusercontent.com/ZYallers/ZYaller/master/upload/image/201706/14/1497426548969652.png)
+![image](https://raw.githubusercontent.com/ZYallers/ZYaller/master/upload/image/201706/14/1497426548969652.png)
 
 ### 使用引用
 
