@@ -79,7 +79,7 @@ echo $src = verJoinPic($pic, 200, 10, false);
 exit;
 ?>
 ```
-执行上面几行代码，然后把输出的base64内容copy，然后去“http://imgbase64.duoshitong.com/”网站，把base64转回图片就可以看到图片了。
+执行上面几行代码，然后把输出的base64内容copy，然后去 `http://imgbase64.duoshitong.com/` 网站，把base64转回图片就可以看到图片了。
 
 ## 参考资料
 - http://blog.csdn.net/hxb147542579/article/details/52781859
