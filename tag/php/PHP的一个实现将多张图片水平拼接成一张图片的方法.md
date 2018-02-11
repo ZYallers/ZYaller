@@ -1,33 +1,33 @@
-# PHP的一个实现将多张图片垂直拼接成一张图片的方法
+# PHP的一个实现将多张图片水平拼接成一张图片的方法
 ```php
 <?php
 /**
- * 将多张图片垂直拼接成一张图片
+ * 将多张图片水平拼接成一张图片
  * @param array $pic 图片集合
- * @param int $width 图片宽度
+ * @param int $height 图片高度
  * @param int $space 图片间隔
  * @param bool $transparent 是否透明
  * @return null|string base64字符串
  */
-function verJoinPic(array $pic, $width = 200, $space = 0, $transparent = true)
+function horJoinPic(array $pic, $height = 200, $space = 0, $transparent = true)
 {
     $len = count($pic);
     if ($len == 0) {
         return null;
     }
-    $bgHeight = ($width * $len) + ($len - 1) * $space; // 背景图片高度
-    $bg = imagecreatetruecolor($width, $bgHeight); // 背景图片
+    $bgWidth = ($height * $len) + $len * $space; // 背景图片高度
+    $bg = imagecreatetruecolor($bgWidth, $height); // 背景图片
     $color = imagecolorallocate($bg, 255, 255, 255); // 为真彩色画布创建白色背景
     imagefill($bg, 0, 0, $color);
     $transparent && imageColorTransparent($bg, $color); // 再设置为透明
 
     $startX = 0;  // 开始位置X
     $startY = 0;  // 开始位置Y
-    $picWidth = $width; // pic宽度
-    $picHeight = $width; // pic高度
+    $picWidth = $height; // pic宽度
+    $picHeight = $height; // pic高度
 
     foreach ($pic as $key => $value) {
-        $startY = $key * ($picWidth + $space);
+        $startX = $key * ($picWidth + $space);
         $pathInfo = pathinfo($value);
         switch (strtolower($pathInfo['extension'])) {
             case 'jpg':
@@ -53,7 +53,7 @@ function verJoinPic(array $pic, $width = 200, $space = 0, $transparent = true)
 
     //header("Content-type: image/png");
     //imagepng($bg);
-    
+
     ob_start();
     imagepng($bg);
     imagedestroy($bg);
@@ -77,7 +77,7 @@ $pic = array(
     'http://img104.job1001.com/upload/faceimg/20131121/375d6cf0ce7bd3b21a48eb8e6bafa2c8_1385026044.gif',
     'http://img104.job1001.com/upload/faceimg/20131121/d5f4380f337f0b0a96592f80f83d20e5_1385026012.gif'
 );
-echo $src = verJoinPic($pic, 200, 10, false);
+echo $src = horJoinPic($pic, 200, 10, false);
 exit;
 ```
 执行上面几行代码，然后把输出的base64内容copy，然后去 `http://imgbase64.duoshitong.com/` 网站，把base64转回图片就可以看到图片了。
