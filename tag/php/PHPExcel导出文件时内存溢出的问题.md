@@ -9,7 +9,7 @@ Excel中一个单元格在不启用缓存的情况下大概占用内存是1K，�
 
 ```php
 $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
-$cacheSettings = array( 'memoryCacheSize' => '512MB');
+$cacheSettings = array('memoryCacheSize' => ini_get('memory_limit') ?: '128MB');
 PHPExcel_Settings::setCacheStorageMethod($cacheMethod,$cacheSettings);
 
 $PHPExcel = new PHPExcel();
@@ -72,6 +72,14 @@ class MyReadFilter implements PHPExcel_Reader_IReadFilter
 $objReader = PHPExcel_IOFactory::createReader('Excel2007');
 $objReader->setReadFilter( new MyReadFilter() );
 $objPHPExcel = $objReader->load("test.xlsx”);
+```
+### 相关调试方法
+获取已使用内存情况
+```php
+function getMemoryUsage()
+{
+    return function_exists('memory_get_usage') ? round(memory_get_usage() / 1024 / 1024, 2) . 'MB' : '0';
+}
 ```
 
 ### 参考资料
