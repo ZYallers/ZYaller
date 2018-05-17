@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+    <meta http-equiv="Page-Enter" content="revealTrans(Duration=2.0,Transition=1)"/>
+    <meta http-equiv="Page-Exit" content="revealTrans(Duration=2.0,Transition=0)"/>
+    <title>loading...</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        #loading{
+            background-color: #334d5c;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            z-index: 1;
+            margin-top: 0px;
+            top: 0px;
+        }
+        #loading-center{
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        #loading-center-absolute {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            height: 50px;
+            width: 50px;
+            margin-top: -25px;
+            margin-left: -25px;
+        }
+        .object{
+            width: 50px;
+            height: 5px;
+            background-color: #FFF;
+            -webkit-animation: animate 2s infinite;
+            animation: animate 2s infinite;
+            position: absolute;
+            top: 0px;
+            right: -200px;
+        }
+        @-webkit-keyframes animate {
+            50% {
+                -ms-transform: translate(-400px,0) rotate(-360deg); 
+                -webkit-transform: translate(-400px,0) rotate(-360deg); 
+                transform: translate(-400px,0) rotate(-360deg); 
+            }
+            100% {
+                -ms-transform: translate(0,0) rotate(360deg); 
+                -webkit-transform: translate(0,0) rotate(360deg); 
+                transform: translate(0,0) rotate(360deg); 
+            }  
+        }
+        @keyframes animate {
+            50% {
+                -ms-transform: translate(-400px,0) rotate(-360deg); 
+                -webkit-transform: translate(-400px,0) rotate(-360deg); 
+                transform: translate(-400px,0) rotate(-360deg); 
+            }
+            100% {
+                -ms-transform: translate(0,0) rotate(360deg); 
+                -webkit-transform: translate(0,0) rotate(360deg); 
+                transform: translate(0,0) rotate(360deg); 
+              }     
+          
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div id="loading-center">
+            <div id="loading-center-absolute">
+                <div class="object" id="object_one"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/js/goto.js"></script>
+</body>
+</html>

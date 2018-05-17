@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+    <meta http-equiv="Page-Enter" content="revealTrans(Duration=2.0,Transition=1)"/>
+    <meta http-equiv="Page-Exit" content="revealTrans(Duration=2.0,Transition=0)"/>
+    <title>loading...</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        
+        #loading{
+            background-color: #35203b;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            z-index: 1;
+            margin-top: 0px;
+            top: 0px;
+        }
+        #loading-center{
+            width: 100%;
+            height: 100%;
+            position: relative;
+            }
+        #loading-center-absolute {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            height: 50px;
+            width: 300px;
+            margin-top: -25px;
+            margin-left: -150px;
+
+        }
+        .object{
+            width: 18px;
+            height: 18px;
+            background-color: #FFF;
+            float: left;
+            margin-top: 15px;
+            margin-right: 15px;
+            -moz-border-radius: 50% 50% 50% 50%;
+            -webkit-border-radius: 50% 50% 50% 50%;
+            border-radius: 50% 50% 50% 50%;
+            -webkit-animation: object 1s infinite;
+            animation: object 1s infinite;
+        }
+        .object:last-child {
+            margin-right: 0px;
+            }
+
+        .object:nth-child(9){
+            -webkit-animation-delay: 0.9s;
+            animation-delay: 0.9s;
+            }
+        .object:nth-child(8){
+            -webkit-animation-delay: 0.8s;
+            animation-delay: 0.8s;
+            }
+        .object:nth-child(7){
+            -webkit-animation-delay: 0.7s;
+            animation-delay: 0.7s;
+            }   
+        .object:nth-child(6){
+            -webkit-animation-delay: 0.6s;
+            animation-delay: 0.6s;
+            }
+        .object:nth-child(5){
+            -webkit-animation-delay: 0.5s;
+            animation-delay: 0.5s;
+            }
+        .object:nth-child(4){
+            -webkit-animation-delay: 0.4s;
+            animation-delay: 0.4s;
+            }
+        .object:nth-child(3){
+            -webkit-animation-delay: 0.3s;
+            animation-delay: 0.3s;
+            }
+        .object:nth-child(2){
+            -webkit-animation-delay: 0.2s;
+            animation-delay: 0.2s;
+            }                               
+
+        @-webkit-keyframes object{
+        50% {
+            -ms-transform: translate(0,-50px); 
+            -webkit-transform: translate(0,-50px);
+            transform: translate(0,-50px);
+            }
+        }       
+        @keyframes object{
+        50% {
+            -ms-transform: translate(0,-50px); 
+            -webkit-transform: translate(0,-50px);
+            transform: translate(0,-50px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div id="loading-center">
+            <div id="loading-center-absolute">
+                <div class="object"></div>
+                <div class="object"></div>
+                <div class="object"></div>
+                <div class="object"></div>
+                <div class="object"></div>
+                <div class="object"></div>
+                <div class="object"></div>
+                <div class="object"></div>
+                <div class="object"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/js/goto.js"></script>
+</body>
+</html>
