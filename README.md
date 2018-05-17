@@ -1,7 +1,7 @@
 ![ZYaller](https://raw.githubusercontent.com/ZYallers/ZYaller/master/static/image/password.jpg)
 
-# ZYaller
-> 传承一生一点一滴
+# ZYaller 传承一生一点一滴
+> http://blog.zyall.com
 
 记录整理和分享学习生活工作中遇到的各种有价值有用和问题的精华文章。丰富阅历，开阔视野，记录成长过程点滴。
 
