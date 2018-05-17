@@ -1,12 +1,11 @@
-# ZYaller
-
-> ZYaller 传承一生一点一滴
-
 ![ZYaller](https://raw.githubusercontent.com/ZYallers/ZYaller/master/static/image/password.jpg)
 
-记录整理和分享学习生活工作中遇到的各种有价值有用和问题的精华文章。丰富阅历，开阔视野，记录成长过程点滴！
+# ZYaller
+> 传承一生一点一滴
 
-## 标签
+记录整理和分享学习生活工作中遇到的各种有价值有用和问题的精华文章。丰富阅历，开阔视野，记录成长过程点滴。
+
+### Tag
 
 - [PHP](https://github.com/ZYallers/ZYaller/tree/master/tag/php)
 - [JavaScript](https://github.com/ZYallers/ZYaller/tree/master/tag/javascript)
@@ -22,12 +21,13 @@
 - [网络安全](https://github.com/ZYallers/ZYaller/tree/master/tag/network-safety)
 - [Chrome](https://github.com/ZYallers/ZYaller/tree/master/tag/chrome)
 - [Golang](https://github.com/ZYallers/ZYaller/tree/master/tag/golang)
+- [API](https://github.com/ZYallers/ZYaller/tree/master/tag/api)
 
-## 开发
+### Code
 
-拉取本项目代码，在dev分支下提交您的code，审阅通过之后会合并到master分支，就是这么简单！
+拉取本项目代码，在dev分支下提交您的code，审阅通过之后会合并到master分支，就是这么简单。
 
-## 联系方式
+### Contact
 
 - `QQ`：1308565859
 - `微信`：zyb_icanplay
