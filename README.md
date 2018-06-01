@@ -29,6 +29,5 @@
 
 ### Contact
 
-- `QQ`：1308565859
-- `微信`：zyb_icanplay
-- `Email`：zyb_icanplay@163.com
+- `QQ`：[1308565859](http://wpa.qq.com/msgrd?v=3&uin=1308565859&site=blog.zyall.com&menu=yes)
+- `Email`：[zyaller@foxmail.com](http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=IVtYQE1NRFNhR05ZTEBITQ9CTkw)
