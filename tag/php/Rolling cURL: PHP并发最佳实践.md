@@ -137,6 +137,35 @@ function rollingCurl(array $urls, $timeout = 3)
 }
 ```
 
+测试代码：
+```php
+$urls = [
+    [
+        'key' => 'kuaidi100',
+        'url' => 'http://www.kuaidi100.com/query',
+        'type' => 'get',
+        'params' => ['postid' => '800125432030318719', 'type' => 'yuantong'],
+        'timeout' => 3
+    ],
+    [
+        'key' => 'ip',
+        'url' => 'http://ip.taobao.com/service/getIpInfo.php',
+        'type' => 'get',
+        'params' => ['ip' => '63.223.108.42'],
+        'timeout' => 3
+    ]
+];
+
+$srartTime = microtime(true);
+$ret = rollingCurl($urls);
+$endTime = microtime(true);
+echo '<pre>';
+var_export($ret);
+echo '</pre>';
+echo '<br/>';
+echo sprintf("use time:%.6fs", $endTime - $srartTime);
+```
+
 通过简单的性能对比这两种方式, 在处理URL队列并发的应用场景中Rolling cURL应该是更加的选择, 并发量非常大(1000+)时, 可以控制并发队列的最大长度。
 比如20, 每当1个URL返回并处理完毕之后立即加入1个尚未请求的URL到队列中, 这样写出来的代码会更加健壮, 不至于并发数太大而卡死或崩溃. 
 
