@@ -1,13 +1,13 @@
-# Rolling cURL: PHP并发最佳实践
+# RollingCurl: PHP并发最佳实践
 > https://www.oschina.net/question/54100_58279
 
 在实际项目或者自己编写小工具(比如新闻聚合,商品价格监控,比价)的过程中, 通常需要从第3方网站或者API接口获取数据, 在需要处理1个URL队列时, 为了提高性能, 可以采用cURL提供的curl_multi_*族函数实现简单的并发。
 
 本文将探讨两种具体的实现方法
 
-### 1. 经典cURL并发机制及其存在的问题
+### 1. 经典curl并发机制及其存在的问题
 
-经典的cURL实现机制在网上很容易找到, 比如参考PHP在线手册的如下实现方式: 
+经典的curl实现机制在网上很容易找到, 比如参考PHP在线手册的如下实现方式: 
 ```php
 function classic_curl($urls) {
     $queue = curl_multi_init();
@@ -58,18 +58,21 @@ function classic_curl($urls) {
 ```
 
 首先将所有的URL压入并发队列, 然后执行并发过程, 等待所有请求接收完之后进行数据的解析等后续处理。
-在实际的处理过程中, 受网络传输的影响, 部分URL的内容会优先于其他URL返回, 但是经典cURL并发必须等待最慢的那个URL返回之后才开始处理。
+在实际的处理过程中, 受网络传输的影响, 部分URL的内容会优先于其他URL返回, 但是经典curl并发必须等待最慢的那个URL返回之后才开始处理。
 等待也就意味着CPU的空闲和浪费. 如果URL队列很短, 这种空闲和浪费还处在可接受的范围, 但如果队列很长, 这种等待和浪费将变得不可接受。
 
 ### 2. 改进的Rolling cURL并发方式
 
-仔细分析不难发现经典cURL并发还存在优化的空间, 优化的方式时当某个URL请求完毕之后尽可能快的去处理它, 边处理边等待其他的URL返回, 而不是等待那个最慢的接口返回之后才开始处理等工作, 从而避免CPU的空闲和浪费。
+仔细分析不难发现经典curl并发还存在优化的空间, 优化的方式时当某个URL请求完毕之后尽可能快的去处理它, 边处理边等待其他的URL返回, 而不是等待那个最慢的接口返回之后才开始处理等工作, 从而避免CPU的空闲和浪费。
 闲话不多说, 下面贴上具体的实现:
 
 ```php
 function rollingCurl(array $urls, $timeout = 3)
 {
+    $now = microtime(true);
     $map = [];
+    $ret = [];
+    
     // 创建批处理cURL句柄
     $queue = curl_multi_init();
     foreach ($urls as $data) {
@@ -105,7 +108,6 @@ function rollingCurl(array $urls, $timeout = 3)
         curl_multi_add_handle($queue, $ch);
     }
 
-    $ret = [];
     do {
         while (($code = curl_multi_exec($queue, $active)) == CURLM_CALL_MULTI_PERFORM) ;
         if ($code != CURLM_OK) {
@@ -113,12 +115,14 @@ function rollingCurl(array $urls, $timeout = 3)
         }
         // a request was just completed -- find out which one
         while ($done = curl_multi_info_read($queue)) {
+            // get spend time of the done handle
+            $spend = sprintf('%.6fs', microtime(true) - $now);
             // get the info and content returned on the request
             //$info = curl_getinfo($done['handle']);
             $error = curl_error($done['handle']);
             $result = curl_multi_getcontent($done['handle']);
-            //$ret[$map[(string)$done['handle']]] =  compact('info', 'error', 'result');
-            $ret[$map[(string)$done['handle']]] = compact('error', 'result');
+            //$ret[$map[(string)$done['handle']]] =  compact('info', 'error', 'result', 'spend');
+            $ret[$map[(string)$done['handle']]] = compact('error', 'result', 'spend');
             // remove the curl handle that just completed
             curl_multi_remove_handle($queue, $done['handle']);
             curl_close($done['handle']);
@@ -133,7 +137,7 @@ function rollingCurl(array $urls, $timeout = 3)
     // 关闭全部句柄
     curl_multi_close($queue);
 
-    return $ret;
+    return ['result' => $ret, 'spend' => sprintf('%.6fs', microtime(true) - $now)];
 }
 ```
 
