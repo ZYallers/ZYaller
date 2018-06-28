@@ -13,52 +13,50 @@ import (
 	"math/rand"
 )
 
-func api01(res chan interface{}, n *int) {
+func myapi01(res chan interface{}, counter *int) {
+	// 生成随机整数
 	rand.Seed(time.Now().UnixNano())
-	ws := rand.Intn(5) + 1
+	ws := rand.Intn(3) + 1
+	// 等待几秒，模拟执行时间
 	time.Sleep(time.Duration(ws) * time.Second)
-	fmt.Printf("Sleep of %s times: %d.\n", "api01", ws)
-
-	res <- "A"
-	fmt.Printf("Sent of 'api01' data: 'A'.\n")
-
-	*n++
+	fmt.Printf("Sleep of '%s' times: '%d'.\n", "myapi01", ws)
+	// 发送数据
+	data := make(map[string]interface{})
+	data["key"] = "myapi01"
+	data["data"] = ws
+	res <- data
+	fmt.Printf("Sent of 'api01' data: '%v'.\n", data)
+	// 记录器+1
+	*counter++
 }
 
-func api02(res chan interface{}, n *int) {
+func myapi02(res chan interface{}, counter *int) {
+	// 生成随机整数
 	rand.Seed(time.Now().UnixNano())
-	ws := rand.Intn(5) + 1
+	ws := rand.Intn(3) + 1
+	// 等待几秒，模拟执行时间
 	time.Sleep(time.Duration(ws) * time.Second)
-	fmt.Printf("Sleep of %s times: %d.\n", "api02", ws)
-
-	res <- "B"
-	fmt.Printf("Sent of 'api02' data: 'B'.\n")
-	*n++
+	fmt.Printf("Sleep of '%s' times: '%d'.\n", "api02", ws)
+	// 发送数据
+	data := make(map[string]interface{})
+	data["key"] = "myapi02"
+	data["data"] = ws
+	res <- data
+	fmt.Printf("Sent of 'api02' data: '%v'.\n", data)
+	// 记录器+1
+	*counter++
 }
 
-func api03(res chan interface{}, n *int) {
-	rand.Seed(time.Now().UnixNano())
-	ws := rand.Intn(5) + 1
-	time.Sleep(time.Duration(ws) * time.Second)
-	fmt.Printf("Sleep of %s times: %d.\n", "api03", ws)
-
-	res <- "C"
-	fmt.Printf("Sent of 'api03' data: 'C'.\n")
-	*n++
-}
-
-func myapi() []interface{} {
+func myapi() map[string]interface{} {
 	resChan := make(chan interface{})
-	var counter int
+	counter := 0
 
-	go api01(resChan, &counter)
-	go api02(resChan, &counter)
-	go api03(resChan, &counter)
+	go myapi01(resChan, &counter)
+	go myapi02(resChan, &counter)
 
 	go func() {
 		for {
-			// fmt.Printf("counter: %d.\n", counter)
-			if counter == 3 {
+			if counter == 2 {
 				close(resChan)
 				fmt.Println("Channel closed.")
 				break
@@ -67,13 +65,14 @@ func myapi() []interface{} {
 		return
 	}()
 
-	var ret []interface{}
+	ret := make(map[string]interface{})
 
 	for {
 		res, ok := <-resChan
 		if ok {
-			ret = append(ret, res)
-			fmt.Printf("Receive data: %s.\n", res)
+			fmt.Printf("Receive data: %v.\n", res)
+			res := res.(map[string]interface{})
+			ret[res["key"].(string)] = res["data"]
 		} else {
 			fmt.Printf("Receive failed: %s.\n", ok)
 			break
@@ -84,29 +83,25 @@ func myapi() []interface{} {
 }
 
 func main() {
-	a := time.Now()
+	st := time.Now()
 	ret := myapi()
-	fmt.Printf("Runtime：%s.\n", time.Since(a))
-	fmt.Printf("ret: [%s]\n", ret)
+	fmt.Printf("Runtime：%s.\n", time.Since(st))
+	fmt.Printf("ret: %v\n", ret)
 }
-
 ```
 
 找到对应路径并执行命令`go run`，输出结果：
 ```shell
-Sleep of api03 times: 2.
-Sent of 'api03' data: 'C'.
-Receive data: C.
-Sleep of api01 times: 4.
-Sent of 'api01' data: 'A'.
-Receive data: A.
-Sleep of api02 times: 4.
-Sent of 'api02' data: 'B'.
-Receive data: B.
+Sleep of 'api02' times: '2'.
+Sleep of 'myapi01' times: '2'.
+Sent of 'api02' data: 'map[key:myapi02 data:2]'.
+Receive data: map[key:myapi02 data:2].
+Receive data: map[key:myapi01 data:2].
+Sent of 'api01' data: 'map[key:myapi01 data:2]'.
 Channel closed.
 Receive failed: %!s(bool=false).
-Runtime：4.001223631s.
-ret: [[C A B]]
+Runtime：2.001304175s.
+ret: map[myapi02:2 myapi01:2]
 ```
 > 提示：因为子方法里的等待时间（模拟方法真实执行时间）是随机的，不一定跟上面我执行的结果一样！
 

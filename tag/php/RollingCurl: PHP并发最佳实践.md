@@ -72,13 +72,14 @@ function rollingCurl(array $urls, $timeout = 3)
     $now = microtime(true);
     $map = [];
     $ret = [];
-    
+
     // 创建批处理cURL句柄
     $queue = curl_multi_init();
     foreach ($urls as $data) {
         if (!isset($data['key']) || empty($data['key']) || !isset($data['url']) || empty($data['url'])) {
             continue;
         }
+
         $ch = curl_init();
         $map[(string)$ch] = $data['key'];
         $url = $data['url'];
@@ -108,9 +109,10 @@ function rollingCurl(array $urls, $timeout = 3)
         curl_multi_add_handle($queue, $ch);
     }
 
+    $active = 0;
     do {
-        while (($code = curl_multi_exec($queue, $active)) == CURLM_CALL_MULTI_PERFORM) ;
-        if ($code != CURLM_OK) {
+        while (($mrc = curl_multi_exec($queue, $active)) == CURLM_CALL_MULTI_PERFORM) ;
+        if ($mrc != CURLM_OK) {
             break;
         }
         // a request was just completed -- find out which one
@@ -118,10 +120,10 @@ function rollingCurl(array $urls, $timeout = 3)
             // get spend time of the done handle
             $spend = sprintf('%.6fs', microtime(true) - $now);
             // get the info and content returned on the request
-            //$info = curl_getinfo($done['handle']);
             $error = curl_error($done['handle']);
+            // get the result of the request
             $result = curl_multi_getcontent($done['handle']);
-            //$ret[$map[(string)$done['handle']]] =  compact('info', 'error', 'result', 'spend');
+            // put to the return
             $ret[$map[(string)$done['handle']]] = compact('error', 'result', 'spend');
             // remove the curl handle that just completed
             curl_multi_remove_handle($queue, $done['handle']);
@@ -131,13 +133,107 @@ function rollingCurl(array $urls, $timeout = 3)
         if ($active > 0) {
             curl_multi_select($queue, 0.5);
         }
-
     } while ($active);
 
     // 关闭全部句柄
     curl_multi_close($queue);
 
     return ['result' => $ret, 'spend' => sprintf('%.6fs', microtime(true) - $now)];
+}
+```
+
+下面这个方法是添加了debug输出，方便研究调试的，但不适合在生产上调用。
+```php
+function rollingCurl(array $urls, $timeout = 3)
+{
+    $now = microtime(true);
+    $map = [];
+    $ret = [];
+
+    // 创建批处理cURL句柄
+    $queue = curl_multi_init();
+    foreach ($urls as $data) {
+        if (!isset($data['key']) || empty($data['key']) || !isset($data['url']) || empty($data['url'])) {
+            continue;
+        }
+
+        $ch = curl_init();
+        $map[(string)$ch] = $data['key'];
+        $url = $data['url'];
+
+        // 提交方式
+        if (isset($data['type']) && strtolower($data['type']) === 'post') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            if (isset($data['params']) && is_array($data['params']) && !empty($data['params'])) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data['params'], null, '&'));
+            }
+        } else {
+            if (isset($data['params']) && is_array($data['params']) && !empty($data['params'])) {
+                $url .= '?' . http_build_query($data['params'], null, '&');
+            }
+        }
+        // 设置url
+        curl_setopt($ch, CURLOPT_URL, $url);
+        // 设置header
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        // 获取的信息以字符串返回，而不是直接输出
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // 设置超时
+        curl_setopt($ch, CURLOPT_TIMEOUT, isset($data['timeout']) ? $data['timeout'] : $timeout);
+        // true时忽略所有的cURL传递给PHP进行的信号。在SAPI多线程传输时此项被默认启用，所以超时选项仍能使用
+        curl_setopt($ch, CURLOPT_NOSIGNAL, true);
+        // 增加句柄
+        curl_multi_add_handle($queue, $ch);
+    }
+
+    $debug = [];
+    $active = 0;
+    $counter = 0;
+    do {
+        $debug[] = 'Start: ' . sprintf('%.6fs', microtime(true) - $now);
+
+        do {
+            $mrc = curl_multi_exec($queue, $active);
+            $debug[] = 'Exec: ' . sprintf('%.6fs', microtime(true) - $now) . ', [mrc=' . $mrc . '; active=' . $active . ']';
+        } while ($mrc == CURLM_CALL_MULTI_PERFORM);
+
+        if ($mrc != CURLM_OK) {
+            $debug[] = 'Finished: ' . sprintf('%.6fs', microtime(true) - $now);
+            break;
+        }
+
+        // a request was just completed -- find out which one
+        while ($done = curl_multi_info_read($queue)) {
+            $debug[] = '**************';
+            $debug[] = 'Readed: ' . sprintf('%.6fs', microtime(true) - $now) . ', [' . $map[(string)$done['handle']] . ']';
+            // get spend time of the done handle
+            $spend = sprintf('%.6fs', microtime(true) - $now);
+            // get the info and content returned on the request
+            //$info = curl_getinfo($done['handle']);
+            $error = curl_error($done['handle']);
+            $debug[] = 'Error: ' . sprintf('%.6fs', microtime(true) - $now) . ', [' . $error . ']';
+            $result = curl_multi_getcontent($done['handle']);
+            //$ret[$map[(string)$done['handle']]] = compact('info', 'error', 'result', 'spend');
+            $ret[$map[(string)$done['handle']]] = compact('error', 'result', 'spend');
+            // remove the curl handle that just completed
+            curl_multi_remove_handle($queue, $done['handle']);
+            curl_close($done['handle']);
+            $debug[] = '**************';
+        }
+
+        // Block for data in / output; error handling is done by curl_multi_exec
+        if ($active > 0) {
+            $debug[] = 'Select: ' . sprintf('%.6fs', microtime(true) - $now) . ', [active=' . $active . ']';
+            curl_multi_select($queue, 0.1);
+        }
+        $debug[] = '-------' . $counter . '-------';
+        $counter++;
+    } while ($active);
+
+    // 关闭全部句柄
+    curl_multi_close($queue);
+
+    return ['debug' => $debug, 'result' => $ret, 'spend' => sprintf('%.6fs', microtime(true) - $now)];
 }
 ```
 
