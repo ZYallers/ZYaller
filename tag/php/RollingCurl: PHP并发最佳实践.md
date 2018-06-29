@@ -131,17 +131,21 @@ function rollingCurl(array $curls, $timeout = 3)
 
         // a request was just completed -- find out which one
         while ($done = curl_multi_info_read($queue)) {
+            // get the spend time return on the request
+            $spend = sprintf('%.6fs', microtime(true) - $now);
+            
             $curl = $map[(string)$done['handle']];
             if (!isset($curl)) {
                 continue;
             }
+            
             // get the info and content returned on the request
             $error = curl_error($done['handle']);
             $result = curl_multi_getcontent($done['handle']);
             if (isset($curl['callback'])) {
                 $result = $curl['callback']($result);
             }
-            $ret[$curl['key']] = compact('error', 'result');
+            $ret[$curl['key']] = compact('spend', 'error', 'result');
 
             // remove the curl handle that just completed
             curl_multi_remove_handle($queue, $done['handle']);
@@ -219,10 +223,13 @@ function debugRollingCurl(array $urls, $timeout = 3)
 
         // a request was just completed -- find out which one
         while ($done = curl_multi_info_read($queue)) {
+            $spend = sprintf('%.6fs', microtime(true) - $now);
+            
             $url = $map[(string)$done['handle']];
             if (!isset($url)) {
                 continue;
             }
+            
             $debug[] = '**************';
             $debug[] = 'Readed: ' . sprintf('%.6fs', microtime(true) - $now) . ', [' . $url['key'] . ']';
 
@@ -235,7 +242,6 @@ function debugRollingCurl(array $urls, $timeout = 3)
                 $result = $url['callback']($result);
                 $debug[] = 'callbacked: ' . sprintf('%.6fs', microtime(true) - $now);
             }
-            $spend = sprintf('%.6fs', microtime(true) - $now);
             $ret[$url['key']] = compact('spend', 'error', 'result');
 
             // remove the curl handle that just completed
