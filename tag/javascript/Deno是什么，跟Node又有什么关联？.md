@@ -29,4 +29,4 @@ https://github.com/ry/deno
 deno的出现确实引起不少轰动。比如在deno项目Issues里的这个话题：
 ![image](https://upload-images.jianshu.io/upload_images/5099107-11288bcffb362643.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700)
 
-是不是引起你的共粪？不仅没拉进跟大神的距离，反倒是越拉越远。
+这个Issues是不是引起你的共粪？感觉不仅没拉进跟大神的距离，反倒是越拉越远。
