@@ -443,6 +443,10 @@ exit();
 这样说来回调函数最好只做简单的数据处理而不要有消耗长时间的处理逻辑，要不然会适得其反。
 
 ### 参考资料
-- http://code.google.com/p/rolling-curl/
+- http://code.google.com/p/rolling-curl
 - https://www.oschina.net/question/54100_58279
 - http://www.searchtb.com/2012/06/rolling-curl-best-practices.html
+- https://www.cnblogs.com/52fhy/p/8908315.html
+- http://php.net/manual/en/function.curl-multi-select.php
+- http://www.webkaka.com/tutorial/php/2013/102844
+- http://www.cnblogs.com/zhenbianshu/p/4935679.html
