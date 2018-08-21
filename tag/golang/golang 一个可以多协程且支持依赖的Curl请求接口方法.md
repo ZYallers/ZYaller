@@ -9,7 +9,7 @@ PHP这种方法虽然支持多并发，但不支持接口依赖，而且存在CP
 因为这个痛点，才写了下面这种通过golang的多协程（goroutine）并发和通道（channel）通信来实现一个支持依赖的模拟curl的方法。
 有关golang的goroutine协程与进程的比较这里不再细说，有兴趣的可以简单查询百度或者相关技术资料，这里主要展示下这种方法的实现。
 代码如下：
-```golang
+```go
 package main
 
 import (
@@ -248,6 +248,9 @@ func main() {
 }
 ```
 主要的实现方法是`GoroutineCurl`，为了演示和调试方便加了很多log打印，正式使用可以去掉的，这个不影响多少性能。
+细心的小伙伴应该发现发起NewRequst缺乏一个包`project08/library`，其实是curl的工具，之前文章介绍过，这里贴上链接
+[golang curl 工具介绍](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/golang%20curl%20%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D.md)
+下载对应代码放到对应目录就可以正常运行了。
 
 运行结果：
 ```shell
