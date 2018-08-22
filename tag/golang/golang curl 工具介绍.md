@@ -107,7 +107,7 @@ func (this *Request) Post() (*Response, error) {
 }
 
 //SetDialTimeOut 
-func (this *Request) SetTimeOut(timeout int) *Request {
+func (this *Request) SetTimeOut(timeout uint8) *Request {
 	this.Timeout = time.Duration(timeout)
 	return this
 }
