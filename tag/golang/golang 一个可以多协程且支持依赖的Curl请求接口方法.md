@@ -23,37 +23,37 @@ import (
 	"fmt"
 )
 
-func GoroutineCurl(jsonStr string) (map[string]interface{}, error) {
+func GoroutineCurl(data string) (map[string]interface{}, error) {
 	var (
 		err     error
-		timeout = 10
+		timeout uint8 = 10
 	)
-	reqJson := make(map[string]interface{})
-	err = json.Unmarshal([]byte(jsonStr), &reqJson)
+	dataJsonMap := make(map[string]interface{})
+	err = json.Unmarshal([]byte(data), &dataJsonMap)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("reqJson: %v.\n", reqJson)
+	log.Printf("dataJsonMap: %v.\n", dataJsonMap)
 
-	if to, ok := reqJson["timeout"].(int); ok {
-		timeout = to
+	if to, ok := dataJsonMap["timeout"]; ok {
+		timeout = uint8(to.(float64))
 	}
 	log.Printf("timeout: %v, type: %T.\n", timeout, timeout)
 
-	urlsSlice := []interface{}{}
-	if urls, ok := reqJson["urls"]; ok {
-		urlsSlice = urls.([]interface{})
+	requestsSlice := []interface{}{}
+	if requests, ok := dataJsonMap["requests"]; ok {
+		requestsSlice = requests.([]interface{})
 	} else {
-		return nil, errors.New("Param 'urls' must request.")
+		return nil, errors.New("Lack of necessary parameters \"requests\"")
 	}
 
 	dependTimesMap := make(map[string]uint64)
-	for _, v := range urlsSlice {
-		urlOpt := v.(map[string]interface{})
-		params := urlOpt["params"].(map[string]interface{})
-		for _, vv := range params {
-			if reflect.TypeOf(vv).String() == "map[string]interface {}" {
-				depend := vv.(map[string]interface{})
+	for _, request := range requestsSlice {
+		opts := request.(map[string]interface{})
+		params := opts["params"].(map[string]interface{})
+		for _, param := range params {
+			if reflect.TypeOf(param).String() == "map[string]interface {}" {
+				depend := param.(map[string]interface{})
 				dependId := depend["depend_id"].(string)
 				dependTimesMap[dependId]++
 			}
@@ -68,31 +68,34 @@ func GoroutineCurl(jsonStr string) (map[string]interface{}, error) {
 	}(resChan)
 
 	dependChanMap := make(map[string]chan interface{})
-	for _, v := range urlsSlice {
-		urlOpt := v.(map[string]interface{})
-		id := urlOpt["id"].(string)
-		dependTimes := dependTimesMap[id]
-		if dependTimes > 0 {
+	for _, request := range requestsSlice {
+		opts := request.(map[string]interface{})
+		id := opts["id"].(string)
+		if dependTimes, ok := dependTimesMap[id]; ok && dependTimes > 0 {
 			dependChanMap[id] = make(chan interface{})
 			defer func(ch chan interface{}, id string) {
 				close(ch)
-				log.Printf("dependChan %s active closed.\n", id)
+				log.Printf("dependChan: %s active closed.\n", id)
 			}(dependChanMap[id], id)
 		}
-		go goroutineCurlHandler(urlOpt, dependChanMap, dependTimesMap, resChan, timeout)
+		go goroutineCurlHandler(opts, dependChanMap, dependTimesMap, resChan, timeout)
 	}
 
 	counter := 0
 	breakFlag := false
-	result := make(map[string]interface{})
+	res := make(map[string]interface{})
 	for {
 		select {
-		case resp, ok := <-resChan:
+		case rec, ok := <-resChan:
 			if ok {
-				log.Printf("get resChan resp: %v.\n", resp)
-				result[resp["id"].(string)] = resp["result"]
-				counter++
-				if counter == len(urlsSlice) {
+				log.Printf("resChan get: %v.\n", rec)
+				if id, ok := rec["id"]; ok {
+					if data, ok := rec["data"]; ok {
+						res[id.(string)] = data
+						counter++
+					}
+				}
+				if counter == len(requestsSlice) {
 					breakFlag = true
 				}
 			}
@@ -104,18 +107,29 @@ func GoroutineCurl(jsonStr string) (map[string]interface{}, error) {
 		}
 	}
 
-	return result, err
+	return res, err
 }
 
-func goroutineCurlHandler(apiOpt map[string]interface{}, dependChanMap map[string]chan interface{},
-	dependTimesMap map[string]uint64, resChan chan map[string]interface{}, timeout int) {
-	id := apiOpt["id"].(string)
-	url := apiOpt["url"].(string)
-	reqType := strings.ToUpper(apiOpt["type"].(string))
+func goroutineCurlHandler(opts map[string]interface{}, dependChanMap map[string]chan interface{},
+	dependTimesMap map[string]uint64, resChan chan map[string]interface{}, timeout uint8) {
+	id := opts["id"].(string)
+	url := opts["url"].(string)
+	reqType := "GET"
+	if rt, ok := opts["type"]; ok {
+		reqType = strings.ToUpper(rt.(string))
+	}
+	requestTimeout := timeout
+	if to, ok := opts["timeout"]; ok {
+		requestTimeout = uint8(to.(float64))
+	}
+
+	headers := map[string]string{
+		"Content-Type": "application/x-www-form-urlencoded",
+	}
 	queries := make(map[string]string)
 	postData := make(map[string]interface{})
 
-	apiParams := apiOpt["params"].(map[string]interface{})
+	apiParams := opts["params"].(map[string]interface{})
 	for key, value := range apiParams {
 		var tranfer interface{}
 		if reflect.TypeOf(value).String() == "map[string]interface {}" {
@@ -124,14 +138,12 @@ func goroutineCurlHandler(apiOpt map[string]interface{}, dependChanMap map[strin
 			dependParam := depend["depend_param"].(string)
 			if dependChan, ok := dependChanMap[dependId]; ok {
 				for {
-					resp, ok := <-dependChan
-					if ok {
+					if resp, ok := <-dependChan; ok {
 						log.Printf("dependChan: %s, resp: %v.\n", dependId, resp)
 						if resp != "" {
 							data := make(map[string]interface{})
 							json.Unmarshal([]byte(resp.(string)), &data)
 							dependParamSlice := strings.Split(dependParam, ".")
-							log.Printf("dependChan: %s, dependParamSlice: %v.\n", dependId, dependParamSlice)
 							for _, v := range dependParamSlice {
 								if tranfer == nil {
 									tranfer = data[v]
@@ -147,17 +159,15 @@ func goroutineCurlHandler(apiOpt map[string]interface{}, dependChanMap map[strin
 		} else {
 			tranfer = value
 		}
-
 		if reqType == "GET" {
 			queries[key] = fmt.Sprintf("%v", tranfer)
 		} else {
 			postData[key] = tranfer
 		}
-		log.Printf("id %s, tranfer: %v, queries: %v, postData: %v.\n", id, tranfer, queries, postData)
 	}
 
-	log.Printf("begin id: %s send, url: %s, reqType: %s.\n", id, url, reqType)
-	curl := library.NewRequest().SetTimeOut(timeout)
+	log.Printf("begin id: %s, url: %s, type: %s, queries: %v, post: %v.\n", id, url, reqType, queries, postData)
+	curl := library.NewRequest().SetTimeOut(requestTimeout).SetHeaders(headers)
 	if len(queries) > 0 {
 		curl.SetQueries(queries)
 	}
@@ -166,54 +176,56 @@ func goroutineCurlHandler(apiOpt map[string]interface{}, dependChanMap map[strin
 	}
 
 	var (
-		respStr string
+		resData string
 		err     error
 	)
 	resp, err := curl.Send(url, reqType)
 	if err == nil {
-		respStr = resp.Body
+		resData = resp.Body
 	}
-	log.Printf("end id: %s, respBody: %v, err: %v.\n", id, respStr, err)
+	log.Printf("end id: %s, respBody: %v, err: %v.\n", id, resData, err)
 
 	if dependChan, ok := dependChanMap[id]; ok {
-		dependTimes, ok := dependTimesMap[id]
-		if ok && dependTimes > 0 {
+		if dependTimes, ok := dependTimesMap[id]; ok && dependTimes > 0 {
 			var i uint64
 			for i = 0; i < dependTimes; i++ {
-				dependChan <- respStr
+				dependChan <- resData
 			}
 		}
 	}
 
-	resChan <- map[string]interface{}{"id": id, "result": respStr}
-	log.Printf("id: %s and resChan sent.\n", id)
+	resChan <- map[string]interface{}{"id": id, "data": resData}
+	log.Printf("id: %s, resChan sent.\n", id)
 }
 
 func main() {
 	jsonMap := map[string]interface{}{
 		"timeout": 10,
-		"urls": []map[string]interface{}{
+		"requests": []map[string]interface{}{
 			map[string]interface{}{
-				"id":   "1",
-				"type": "post",
-				"url":  "http://mall-test.hxsapp.com/api/testBrm/test01",
+				"id":      "1",
+				"type":    "post",
+				"timeout": 10,
+				"url":     "http://mall-test.hxsapp.com/api/testBrm/test01",
 				"params": map[string]interface{}{
 					"name": "Peter",
 					"age":  23,
 				},
 			},
 			map[string]interface{}{
-				"id":   "2",
-				"type": "get",
-				"url":  "http://mall-test.hxsapp.com/api/testBrm/test02",
+				"id":      "2",
+				"type":    "get",
+				"timeout": 10,
+				"url":     "http://mall-test.hxsapp.com/api/testBrm/test02",
 				"params": map[string]interface{}{
 					"date": "2018-01-12",
 				},
 			},
 			map[string]interface{}{
-				"id":   "3",
-				"type": "post",
-				"url":  "http://mall-test.hxsapp.com/api/testBrm/test03",
+				"id":      "3",
+				"type":    "post",
+				"timeout": 10,
+				"url":     "http://mall-test.hxsapp.com/api/testBrm/test03",
 				"params": map[string]interface{}{
 					"user_id": map[string]string{
 						"depend_id":    "1",
@@ -226,9 +238,10 @@ func main() {
 				},
 			},
 			map[string]interface{}{
-				"id":   "4",
-				"type": "get",
-				"url":  "http://mall-test.hxsapp.com/api/testBrm/test04",
+				"id":      "4",
+				"type":    "get",
+				"timeout": 10,
+				"url":     "http://mall-test.hxsapp.com/api/testBrm/test04",
 				"params": map[string]interface{}{
 					"date": "2018-01-12",
 					"product_id": map[string]string{
@@ -254,43 +267,34 @@ func main() {
 
 运行结果：
 ```shell
-2018/08/21 20:01:12 reqJson: map[timeout:10 urls:[map[id:1 params:map[age:23 name:Peter] type:post url:http://mall-test.hxsapp.com/api/testBrm/test01] map[type:get url:http://mall-test.hxsapp.com/api/testBrm/test02 id:2 params:map[date:2018-01-12]] map[params:map[product_id:map[depend_id:2 depend_param:data.product_id] user_id:map[depend_id:1 depend_param:data.user_id]] type:post url:http://mall-test.hxsapp.com/api/testBrm/test03 id:3] map[type:get url:http://mall-test.hxsapp.com/api/testBrm/test04 id:4 params:map[date:2018-01-12 product_id:map[depend_id:2 depend_param:data.product_id]]]]].
-2018/08/21 20:01:12 timeout: 10, type: int.
-2018/08/21 20:01:12 dependTimesMap: map[2:2 1:1].
-2018/08/21 20:01:12 id 4, tranfer: 2018-01-12, queries: map[date:2018-01-12], postData: map[].
-2018/08/21 20:01:12 id 1, tranfer: 23, queries: map[], postData: map[age:23].
-2018/08/21 20:01:12 id 1, tranfer: Peter, queries: map[], postData: map[age:23 name:Peter].
-2018/08/21 20:01:12 id 2, tranfer: 2018-01-12, queries: map[date:2018-01-12], postData: map[].
-2018/08/21 20:01:12 begin id: 1 send, url: http://mall-test.hxsapp.com/api/testBrm/test01, reqType: POST.
-2018/08/21 20:01:12 begin id: 2 send, url: http://mall-test.hxsapp.com/api/testBrm/test02, reqType: GET.
-2018/08/21 20:01:13 end id: 1, respBody: {"code":200,"data":{"user_id":12}}, err: <nil>.
-2018/08/21 20:01:14 end id: 2, respBody: {"code":200,"data":{"product_id":10}}, err: <nil>.
-2018/08/21 20:01:14 id: 2 and resChan sent.
-2018/08/21 20:01:14 dependChan: 2, resp: {"code":200,"data":{"product_id":10}}.
-2018/08/21 20:01:14 dependChan: 2, resp: {"code":200,"data":{"product_id":10}}.
-2018/08/21 20:01:14 get resChan resp: map[id:2 result:{"code":200,"data":{"product_id":10}}].
-2018/08/21 20:01:14 dependChan: 2, dependParamSlice: [data product_id].
-2018/08/21 20:01:14 id 4, tranfer: 10, queries: map[date:2018-01-12 product_id:10], postData: map[].
-2018/08/21 20:01:14 begin id: 4 send, url: http://mall-test.hxsapp.com/api/testBrm/test04, reqType: GET.
-2018/08/21 20:01:14 dependChan: 2, dependParamSlice: [data product_id].
-2018/08/21 20:01:14 id 3, tranfer: 10, queries: map[], postData: map[product_id:10].
-2018/08/21 20:01:14 dependChan: 1, resp: {"code":200,"data":{"user_id":12}}.
-2018/08/21 20:01:14 dependChan: 1, dependParamSlice: [data user_id].
-2018/08/21 20:01:14 id 3, tranfer: 12, queries: map[], postData: map[product_id:10 user_id:12].
-2018/08/21 20:01:14 begin id: 3 send, url: http://mall-test.hxsapp.com/api/testBrm/test03, reqType: POST.
-2018/08/21 20:01:14 id: 1 and resChan sent.
-2018/08/21 20:01:14 get resChan resp: map[id:1 result:{"code":200,"data":{"user_id":12}}].
-2018/08/21 20:01:17 end id: 3, respBody: {"code":200,"data":{"user_id":12,"product_id":10}}, err: <nil>.
-2018/08/21 20:01:17 id: 3 and resChan sent.
-2018/08/21 20:01:17 get resChan resp: map[id:3 result:{"code":200,"data":{"user_id":12,"product_id":10}}].
-2018/08/21 20:01:18 end id: 4, respBody: {"code":200,"data":{"date":"2018-01-12","input":""}}, err: <nil>.
-2018/08/21 20:01:18 id: 4 and resChan sent.
-2018/08/21 20:01:18 get resChan resp: map[id:4 result:{"code":200,"data":{"date":"2018-01-12","input":""}}].
-2018/08/21 20:01:18 dependChan 2 active closed.
-2018/08/21 20:01:18 dependChan 1 active closed.
-2018/08/21 20:01:18 resChan active closed.
-2018/08/21 20:01:18 Runtime：6.205477107s.
-2018/08/21 20:01:18 result: map[1:{"code":200,"data":{"user_id":12}} 3:{"code":200,"data":{"user_id":12,"product_id":10}} 4:{"code":200,"data":{"date":"2018-01-12","input":""}} 2:{"code":200,"data":{"product_id":10}}], err: <nil>.
+...
+2018/08/22 16:03:51 dataJsonMap: map[requests:[map[id:1 params:map[age:23 name:Peter] timeout:10 type:post url:http://mall-test.hxsapp.com/api/testBrm/test01] map[url:http://mall-test.hxsapp.com/api/testBrm/test02 id:2 params:map[date:2018-01-12] timeout:10 type:get] map[id:3 params:map[user_id:map[depend_id:1 depend_param:data.user_id] product_id:map[depend_param:data.product_id depend_id:2]] timeout:10 type:post url:http://mall-test.hxsapp.com/api/testBrm/test03] map[id:4 params:map[date:2018-01-12 product_id:map[depend_param:data.product_id depend_id:2]] timeout:10 type:get url:http://mall-test.hxsapp.com/api/testBrm/test04]] timeout:10].
+2018/08/22 16:03:51 timeout: 10, type: uint8.
+2018/08/22 16:03:51 dependTimesMap: map[2:2 1:1].
+2018/08/22 16:03:51 begin id: 2, url: http://mall-test.hxsapp.com/api/testBrm/test02, type: GET, queries: map[date:2018-01-12], post: map[].
+2018/08/22 16:03:51 begin id: 1, url: http://mall-test.hxsapp.com/api/testBrm/test01, type: POST, queries: map[], post: map[name:Peter age:23].
+2018/08/22 16:03:52 end id: 1, respBody: {"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}, err: <nil>.
+2018/08/22 16:03:53 end id: 2, respBody: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}, err: <nil>.
+2018/08/22 16:03:53 id: 2, resChan sent.
+2018/08/22 16:03:53 dependChan: 2, resp: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
+2018/08/22 16:03:53 dependChan: 2, resp: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
+2018/08/22 16:03:53 dependChan: 1, resp: {"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}.
+2018/08/22 16:03:53 resChan get: map[id:2 data:{"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}].
+2018/08/22 16:03:53 begin id: 3, url: http://mall-test.hxsapp.com/api/testBrm/test03, type: POST, queries: map[], post: map[user_id:12 product_id:10].
+2018/08/22 16:03:53 resChan get: map[data:{"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}} id:1].
+2018/08/22 16:03:53 id: 1, resChan sent.
+2018/08/22 16:03:53 begin id: 4, url: http://mall-test.hxsapp.com/api/testBrm/test04, type: GET, queries: map[date:2018-01-12 product_id:10], post: map[].
+2018/08/22 16:03:56 end id: 3, respBody: {"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}}, err: <nil>.
+2018/08/22 16:03:56 id: 3, resChan sent.
+2018/08/22 16:03:56 resChan get: map[id:3 data:{"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}}].
+2018/08/22 16:03:57 end id: 4, respBody: {"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}}, err: <nil>.
+2018/08/22 16:03:57 id: 4, resChan sent.
+2018/08/22 16:03:57 resChan get: map[id:4 data:{"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}}].
+2018/08/22 16:03:57 dependChan: 2 active closed.
+2018/08/22 16:03:57 dependChan: 1 active closed.
+2018/08/22 16:03:57 resChan active closed.
+2018/08/22 16:03:57 Runtime：6.150179586s.
+2018/08/22 16:03:57 result: map[1:{"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}} 3:{"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}} 4:{"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}} 2:{"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}], err: <nil>.
 
 Process finished with exit code 0
 ```
@@ -300,34 +304,28 @@ Process finished with exit code 0
 public function test01()
 {
     sleep(1);
-    echo json_encode(['code' => 200, 'data' => ['user_id' => 12]]);
+    echo json_encode(['code' => 200, 'data' => ['user_id' => 12, 'post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 
 public function test02()
 {
     sleep(2);
-    echo json_encode(['code' => 200, 'data' => ['product_id' => 10]]);
+    echo json_encode(['code' => 200, 'data' => ['product_id' => 10, 'post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 
 public function test03()
 {
     sleep(3);
-    $input = file_get_contents('php://input');
-    $data = empty($input) ? [] : json_decode($input, true);
-    $userId = isset($data['user_id']) ? $data['user_id'] : 0;
-    $proId = isset($data['product_id']) ? $data['product_id'] : 0;
-    echo json_encode(['code' => 200, 'data' => ['user_id' => $userId, 'product_id' => $proId]]);
+    echo json_encode(['code' => 200, 'data' => ['post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 
 public function test04()
 {
     sleep(4);
-    $input = file_get_contents('php://input');
-    $date = $this->input->get('date');
-    echo json_encode(['code' => 200, 'data' => ['date' => $date, 'input' => $input]]);
+    echo json_encode(['code' => 200, 'data' => ['post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 ```
