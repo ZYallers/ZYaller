@@ -200,8 +200,6 @@ import (
 	"log"
 	"encoding/json"
 	"project08/library"
-	"net/http"
-	"github.com/julienschmidt/httprouter"
 	"fmt"
 )
 
@@ -264,40 +262,15 @@ func getJsonString() string {
 	return str
 }
 
-func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var (
-		resp []byte
-		err  error
-	)
-	res, err := library.GoroutineCurl(getJsonString())
-	if err == nil {
-		resp, err = json.Marshal(res)
-	}
-	if err == nil {
-		fmt.Fprint(w, string(resp))
-	} else {
-		fmt.Fprintf(w, "Error: %s.\n", err)
-	}
-}
-
-func Hello(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprintf(w, "Hello!\n")
-}
-
 func main() {
-	router := httprouter.New()
-	router.GET("/", Index)
-	router.GET("/hello", Hello)
-	log.Println(http.ListenAndServe(":9090", router))
-
-	/*res, err := library.GoroutineCurl(getJsonString())
+    res, err := library.GoroutineCurl(getJsonString())
 	if err == nil {
 		for k, v := range res["data"].(map[string]interface{}) {
 			log.Printf("result: k=%s, v=%v.\n", k, v)
 		}
 	} else {
 		log.Printf("Err: %v.\n", err)
-	}*/
+	}
 }
 ```
 
