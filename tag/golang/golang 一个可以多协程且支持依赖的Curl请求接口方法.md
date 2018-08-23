@@ -10,31 +10,27 @@ PHP这种方法虽然支持多并发，但不支持接口依赖，而且存在CP
 有关golang的goroutine协程与进程的比较这里不再细说，有兴趣的可以简单查询百度或者相关技术资料，这里主要展示下这种方法的实现。
 代码如下：
 ```go
-package main
+package library
 
 import (
-	"time"
-	"log"
-	"encoding/json"
-	"reflect"
-	"strings"
-	"project08/library"
-	"errors"
 	"fmt"
+	"encoding/json"
+	"errors"
+	"reflect"
+	"time"
+	"strings"
+	"log"
 )
 
 func GoroutineCurl(data string) (map[string]interface{}, error) {
-	var (
-		err     error
-		timeout uint8 = 10
-	)
+	now := time.Now()
 	dataJsonMap := make(map[string]interface{})
-	err = json.Unmarshal([]byte(data), &dataJsonMap)
-	if err != nil {
+	if err := json.Unmarshal([]byte(data), &dataJsonMap); err != nil {
 		return nil, err
 	}
 	log.Printf("dataJsonMap: %v.\n", dataJsonMap)
 
+	var timeout uint8 = 10
 	if to, ok := dataJsonMap["timeout"]; ok {
 		timeout = uint8(to.(float64))
 	}
@@ -62,28 +58,19 @@ func GoroutineCurl(data string) (map[string]interface{}, error) {
 	log.Printf("dependTimesMap: %v.\n", dependTimesMap)
 
 	resChan := make(chan map[string]interface{})
-	defer func(ch chan map[string]interface{}) {
-		close(resChan)
-		log.Printf("resChan active closed.\n")
-	}(resChan)
-
 	dependChanMap := make(map[string]chan interface{})
 	for _, request := range requestsSlice {
 		opts := request.(map[string]interface{})
 		id := opts["id"].(string)
 		if dependTimes, ok := dependTimesMap[id]; ok && dependTimes > 0 {
 			dependChanMap[id] = make(chan interface{})
-			defer func(ch chan interface{}, id string) {
-				close(ch)
-				log.Printf("dependChan: %s active closed.\n", id)
-			}(dependChanMap[id], id)
 		}
-		go goroutineCurlHandler(opts, dependChanMap, dependTimesMap, resChan, timeout)
+		go goroutineCurlHandler(opts, dependChanMap, dependTimesMap, resChan)
 	}
 
 	counter := 0
 	breakFlag := false
-	res := make(map[string]interface{})
+	reqResMap := make(map[string]interface{})
 	for {
 		select {
 		case rec, ok := <-resChan:
@@ -91,7 +78,7 @@ func GoroutineCurl(data string) (map[string]interface{}, error) {
 				log.Printf("resChan get: %v.\n", rec)
 				if id, ok := rec["id"]; ok {
 					if data, ok := rec["data"]; ok {
-						res[id.(string)] = data
+						reqResMap[id.(string)] = data
 						counter++
 					}
 				}
@@ -107,20 +94,24 @@ func GoroutineCurl(data string) (map[string]interface{}, error) {
 		}
 	}
 
-	return res, err
+	close(resChan)
+	res := make(map[string]interface{})
+	res["runtime"] = time.Since(now).String()
+	res["data"] = reqResMap
+	return res, nil
 }
 
-func goroutineCurlHandler(opts map[string]interface{}, dependChanMap map[string]chan interface{},
-	dependTimesMap map[string]uint64, resChan chan map[string]interface{}, timeout uint8) {
+func goroutineCurlHandler(opts map[string]interface{}, chanMap map[string]chan interface{}, timesMap map[string]uint64, resChan chan map[string]interface{}) {
 	id := opts["id"].(string)
 	url := opts["url"].(string)
 	reqType := "GET"
 	if rt, ok := opts["type"]; ok {
 		reqType = strings.ToUpper(rt.(string))
 	}
-	requestTimeout := timeout
+
+	var timeout uint8 = 10
 	if to, ok := opts["timeout"]; ok {
-		requestTimeout = uint8(to.(float64))
+		timeout = uint8(to.(float64))
 	}
 
 	headers := map[string]string{
@@ -136,7 +127,7 @@ func goroutineCurlHandler(opts map[string]interface{}, dependChanMap map[string]
 			depend := value.(map[string]interface{})
 			dependId := depend["depend_id"].(string)
 			dependParam := depend["depend_param"].(string)
-			if dependChan, ok := dependChanMap[dependId]; ok {
+			if dependChan, ok := chanMap[dependId]; ok {
 				for {
 					if resp, ok := <-dependChan; ok {
 						log.Printf("dependChan: %s, resp: %v.\n", dependId, resp)
@@ -167,7 +158,7 @@ func goroutineCurlHandler(opts map[string]interface{}, dependChanMap map[string]
 	}
 
 	log.Printf("begin id: %s, url: %s, type: %s, queries: %v, post: %v.\n", id, url, reqType, queries, postData)
-	curl := library.NewRequest().SetTimeOut(requestTimeout).SetHeaders(headers)
+	curl := NewRequest().SetTimeOut(timeout).SetHeaders(headers)
 	if len(queries) > 0 {
 		curl.SetQueries(queries)
 	}
@@ -175,30 +166,46 @@ func goroutineCurlHandler(opts map[string]interface{}, dependChanMap map[string]
 		curl.SetPostData(postData)
 	}
 
-	var (
-		resData string
-		err     error
-	)
-	resp, err := curl.Send(url, reqType)
-	if err == nil {
+	resData := ""
+	if resp, err := curl.Send(url, reqType); err == nil {
 		resData = resp.Body
+		log.Printf("end id: %s, respBody: %v.\n", id, resData)
+	} else {
+		log.Printf("end id: %s, Err: %s.\n", id, err)
 	}
-	log.Printf("end id: %s, respBody: %v, err: %v.\n", id, resData, err)
 
-	if dependChan, ok := dependChanMap[id]; ok {
-		if dependTimes, ok := dependTimesMap[id]; ok && dependTimes > 0 {
+	if dependChan, ok := chanMap[id]; ok {
+		if dependTimes, ok := timesMap[id]; ok && dependTimes > 0 {
 			var i uint64
 			for i = 0; i < dependTimes; i++ {
 				dependChan <- resData
 			}
+			close(dependChan)
 		}
 	}
 
 	resChan <- map[string]interface{}{"id": id, "data": resData}
 	log.Printf("id: %s, resChan sent.\n", id)
 }
+```
+主要的实现方法是`GoroutineCurl`，为了演示和调试方便加了很多log打印，正式使用可以去掉的，这个不影响多少性能。
+细心的小伙伴应该发现发起NewRequst缺乏一个包`project08/library`，其实是curl的工具，之前文章介绍过，这里贴上链接
+[golang curl 工具介绍](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/golang%20curl%20%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D.md)
 
-func main() {
+下载对应代码放到对应`project08/library`目录，写个go main文件测试下。
+```go
+package main
+
+import (
+	"log"
+	"encoding/json"
+	"project08/library"
+	"net/http"
+	"github.com/julienschmidt/httprouter"
+	"fmt"
+)
+
+func getJsonString() string {
 	jsonMap := map[string]interface{}{
 		"timeout": 10,
 		"requests": []map[string]interface{}{
@@ -206,7 +213,7 @@ func main() {
 				"id":      "1",
 				"type":    "post",
 				"timeout": 10,
-				"url":     "http://mall-test.hxsapp.com/api/testBrm/test01",
+				"url":     "http://act-test.hxsapp.com/api/test/test01",
 				"params": map[string]interface{}{
 					"name": "Peter",
 					"age":  23,
@@ -216,7 +223,7 @@ func main() {
 				"id":      "2",
 				"type":    "get",
 				"timeout": 10,
-				"url":     "http://mall-test.hxsapp.com/api/testBrm/test02",
+				"url":     "http://act-test.hxsapp.com/api/test/test02",
 				"params": map[string]interface{}{
 					"date": "2018-01-12",
 				},
@@ -225,7 +232,7 @@ func main() {
 				"id":      "3",
 				"type":    "post",
 				"timeout": 10,
-				"url":     "http://mall-test.hxsapp.com/api/testBrm/test03",
+				"url":     "http://act-test.hxsapp.com/api/test/test03",
 				"params": map[string]interface{}{
 					"user_id": map[string]string{
 						"depend_id":    "1",
@@ -241,7 +248,7 @@ func main() {
 				"id":      "4",
 				"type":    "get",
 				"timeout": 10,
-				"url":     "http://mall-test.hxsapp.com/api/testBrm/test04",
+				"url":     "http://act-test.hxsapp.com/api/test/test04",
 				"params": map[string]interface{}{
 					"date": "2018-01-12",
 					"product_id": map[string]string{
@@ -252,49 +259,77 @@ func main() {
 			},
 		},
 	}
-
 	buffer, _ := json.Marshal(jsonMap)
-	st := time.Now()
-	res, err := GoroutineCurl(string(buffer))
-	log.Printf("Runtime：%s.\n", time.Since(st))
-	log.Printf("result: %v, err: %v.\n", res, err)
+	str := string(buffer)
+	return str
+}
+
+func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var (
+		resp []byte
+		err  error
+	)
+	res, err := library.GoroutineCurl(getJsonString())
+	if err == nil {
+		resp, err = json.Marshal(res)
+	}
+	if err == nil {
+		fmt.Fprint(w, string(resp))
+	} else {
+		fmt.Fprintf(w, "Error: %s.\n", err)
+	}
+}
+
+func Hello(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprintf(w, "Hello!\n")
+}
+
+func main() {
+	router := httprouter.New()
+	router.GET("/", Index)
+	router.GET("/hello", Hello)
+	log.Println(http.ListenAndServe(":9090", router))
+
+	/*res, err := library.GoroutineCurl(getJsonString())
+	if err == nil {
+		for k, v := range res["data"].(map[string]interface{}) {
+			log.Printf("result: k=%s, v=%v.\n", k, v)
+		}
+	} else {
+		log.Printf("Err: %v.\n", err)
+	}*/
 }
 ```
-主要的实现方法是`GoroutineCurl`，为了演示和调试方便加了很多log打印，正式使用可以去掉的，这个不影响多少性能。
-细心的小伙伴应该发现发起NewRequst缺乏一个包`project08/library`，其实是curl的工具，之前文章介绍过，这里贴上链接
-[golang curl 工具介绍](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/golang%20curl%20%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D.md)
-下载对应代码放到对应目录就可以正常运行了。
 
 运行结果：
 ```shell
 ...
-2018/08/22 16:03:51 dataJsonMap: map[requests:[map[id:1 params:map[age:23 name:Peter] timeout:10 type:post url:http://mall-test.hxsapp.com/api/testBrm/test01] map[url:http://mall-test.hxsapp.com/api/testBrm/test02 id:2 params:map[date:2018-01-12] timeout:10 type:get] map[id:3 params:map[user_id:map[depend_id:1 depend_param:data.user_id] product_id:map[depend_param:data.product_id depend_id:2]] timeout:10 type:post url:http://mall-test.hxsapp.com/api/testBrm/test03] map[id:4 params:map[date:2018-01-12 product_id:map[depend_param:data.product_id depend_id:2]] timeout:10 type:get url:http://mall-test.hxsapp.com/api/testBrm/test04]] timeout:10].
-2018/08/22 16:03:51 timeout: 10, type: uint8.
-2018/08/22 16:03:51 dependTimesMap: map[2:2 1:1].
-2018/08/22 16:03:51 begin id: 2, url: http://mall-test.hxsapp.com/api/testBrm/test02, type: GET, queries: map[date:2018-01-12], post: map[].
-2018/08/22 16:03:51 begin id: 1, url: http://mall-test.hxsapp.com/api/testBrm/test01, type: POST, queries: map[], post: map[name:Peter age:23].
-2018/08/22 16:03:52 end id: 1, respBody: {"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}, err: <nil>.
-2018/08/22 16:03:53 end id: 2, respBody: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}, err: <nil>.
-2018/08/22 16:03:53 id: 2, resChan sent.
-2018/08/22 16:03:53 dependChan: 2, resp: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
-2018/08/22 16:03:53 dependChan: 2, resp: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
-2018/08/22 16:03:53 dependChan: 1, resp: {"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}.
-2018/08/22 16:03:53 resChan get: map[id:2 data:{"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}].
-2018/08/22 16:03:53 begin id: 3, url: http://mall-test.hxsapp.com/api/testBrm/test03, type: POST, queries: map[], post: map[user_id:12 product_id:10].
-2018/08/22 16:03:53 resChan get: map[data:{"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}} id:1].
-2018/08/22 16:03:53 id: 1, resChan sent.
-2018/08/22 16:03:53 begin id: 4, url: http://mall-test.hxsapp.com/api/testBrm/test04, type: GET, queries: map[date:2018-01-12 product_id:10], post: map[].
-2018/08/22 16:03:56 end id: 3, respBody: {"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}}, err: <nil>.
-2018/08/22 16:03:56 id: 3, resChan sent.
-2018/08/22 16:03:56 resChan get: map[id:3 data:{"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}}].
-2018/08/22 16:03:57 end id: 4, respBody: {"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}}, err: <nil>.
-2018/08/22 16:03:57 id: 4, resChan sent.
-2018/08/22 16:03:57 resChan get: map[id:4 data:{"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}}].
-2018/08/22 16:03:57 dependChan: 2 active closed.
-2018/08/22 16:03:57 dependChan: 1 active closed.
-2018/08/22 16:03:57 resChan active closed.
-2018/08/22 16:03:57 Runtime：6.150179586s.
-2018/08/22 16:03:57 result: map[1:{"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}} 3:{"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}} 4:{"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}} 2:{"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}], err: <nil>.
+2018/08/23 15:27:35 dataJsonMap: map[requests:[map[timeout:10 type:post url:http://act-test.hxsapp.com/api/test/test01 id:1 params:map[age:23 name:Peter]] map[params:map[date:2018-01-12] timeout:10 type:get url:http://act-test.hxsapp.com/api/test/test02 id:2] map[url:http://act-test.hxsapp.com/api/test/test03 id:3 params:map[product_id:map[depend_id:2 depend_param:data.product_id] user_id:map[depend_id:1 depend_param:data.user_id]] timeout:10 type:post] map[id:4 params:map[date:2018-01-12 product_id:map[depend_id:2 depend_param:data.product_id]] timeout:10 type:get url:http://act-test.hxsapp.com/api/test/test04]] timeout:10].
+2018/08/23 15:27:35 timeout: 10, type: uint8.
+2018/08/23 15:27:35 dependTimesMap: map[2:2 1:1].
+2018/08/23 15:27:35 begin id: 2, url: http://act-test.hxsapp.com/api/test/test02, type: GET, queries: map[date:2018-01-12], post: map[].
+2018/08/23 15:27:35 begin id: 1, url: http://act-test.hxsapp.com/api/test/test01, type: POST, queries: map[], post: map[age:23 name:Peter].
+2018/08/23 15:27:42 end id: 2, respBody: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
+2018/08/23 15:27:42 id: 2, resChan sent.
+2018/08/23 15:27:42 resChan get: map[id:2 data:{"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}].
+2018/08/23 15:27:42 dependChan: 2, resp: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
+2018/08/23 15:27:42 dependChan: 2, resp: {"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
+2018/08/23 15:27:42 begin id: 4, url: http://act-test.hxsapp.com/api/test/test04, type: GET, queries: map[date:2018-01-12 product_id:10], post: map[].
+2018/08/23 15:27:42 end id: 1, respBody: {"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}.
+2018/08/23 15:27:42 id: 1, resChan sent.
+2018/08/23 15:27:42 resChan get: map[id:1 data:{"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}].
+2018/08/23 15:27:42 dependChan: 1, resp: {"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}.
+2018/08/23 15:27:42 begin id: 3, url: http://act-test.hxsapp.com/api/test/test03, type: POST, queries: map[], post: map[product_id:10 user_id:12].
+2018/08/23 15:27:48 end id: 4, respBody: {"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}}.
+2018/08/23 15:27:48 id: 4, resChan sent.
+2018/08/23 15:27:48 resChan get: map[id:4 data:{"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}}].
+2018/08/23 15:27:48 end id: 3, respBody: {"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}}.
+2018/08/23 15:27:48 id: 3, resChan sent.
+2018/08/23 15:27:48 resChan get: map[id:3 data:{"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}}].
+2018/08/23 15:27:48 result: k=3, v={"code":200,"data":{"post":{"{\"product_id\":10,\"user_id\":12}":"","0":""},"get":[],"input":"{\"product_id\":10,\"user_id\":12}"}}.
+2018/08/23 15:27:48 result: k=2, v={"code":200,"data":{"product_id":10,"post":[],"get":{"date":"2018-01-12"},"input":""}}.
+2018/08/23 15:27:48 result: k=1, v={"code":200,"data":{"user_id":12,"post":{"{\"age\":23,\"name\":\"Peter\"}":"","0":""},"get":[],"input":"{\"age\":23,\"name\":\"Peter\"}"}}.
+2018/08/23 15:27:48 result: k=4, v={"code":200,"data":{"post":[],"get":{"date":"2018-01-12","product_id":"10"},"input":""}}.
 
 Process finished with exit code 0
 ```
@@ -303,33 +338,32 @@ Process finished with exit code 0
 ```php
 public function test01()
 {
-    sleep(1);
+    //sleep(1);
     echo json_encode(['code' => 200, 'data' => ['user_id' => 12, 'post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 
 public function test02()
 {
-    sleep(2);
+    //sleep(2);
     echo json_encode(['code' => 200, 'data' => ['product_id' => 10, 'post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 
 public function test03()
 {
-    sleep(3);
+    //sleep(3);
     echo json_encode(['code' => 200, 'data' => ['post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 
 public function test04()
 {
-    sleep(4);
+    //sleep(4);
     echo json_encode(['code' => 200, 'data' => ['post' => $_POST, 'get' => $_GET, 'input' => file_get_contents('php://input')]]);
     exit;
 }
 ```
-为了模拟方便，这些PHP接口里加了sleep阻塞。
 
 最后，虽然这种方式不如直接在golang里写业务实现，因为接口依赖的时候，golang可以先并发跑完不需要依赖的代码，只需要在需要依赖的时候去等待
 对应的数据，这样效率肯定是最好的。但在现有业务存在且量大的请求下，不可能完全重现成golang。
