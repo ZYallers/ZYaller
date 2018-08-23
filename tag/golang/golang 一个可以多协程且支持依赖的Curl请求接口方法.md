@@ -19,34 +19,32 @@ import (
 	"reflect"
 	"time"
 	"strings"
+	"strconv"
 	"log"
 )
 
-func GoroutineCurl(data string) (map[string]interface{}, error) {
+func GoroutineCurl(data map[string]interface{}) (map[string]interface{}, error) {
 	now := time.Now()
-	dataJsonMap := make(map[string]interface{})
-	if err := json.Unmarshal([]byte(data), &dataJsonMap); err != nil {
-		return nil, err
-	}
-	log.Printf("dataJsonMap: %v.\n", dataJsonMap)
 
 	var timeout uint8 = 10
-	if to, ok := dataJsonMap["timeout"]; ok {
-		timeout = uint8(to.(float64))
+	if to, ok := data["timeout"]; ok {
+		if ut, err := strconv.ParseUint(to.(string), 10, 64); err == nil {
+			timeout = uint8(ut)
+		}
 	}
 	log.Printf("timeout: %v, type: %T.\n", timeout, timeout)
 
-	requestsSlice := []interface{}{}
-	if requests, ok := dataJsonMap["requests"]; ok {
-		requestsSlice = requests.([]interface{})
+	requestsSlice := []map[string]interface{}{}
+	if requests, ok := data["requests"]; ok {
+		requestsSlice = requests.([]map[string]interface{})
 	} else {
 		return nil, errors.New("Lack of necessary parameters \"requests\"")
 	}
+	log.Printf("requestsSlice: %v, type: %T.\n", requestsSlice, requestsSlice)
 
 	dependTimesMap := make(map[string]uint64)
 	for _, request := range requestsSlice {
-		opts := request.(map[string]interface{})
-		params := opts["params"].(map[string]interface{})
+		params := request["params"].(map[string]interface{})
 		for _, param := range params {
 			if reflect.TypeOf(param).String() == "map[string]interface {}" {
 				depend := param.(map[string]interface{})
@@ -60,12 +58,11 @@ func GoroutineCurl(data string) (map[string]interface{}, error) {
 	resChan := make(chan map[string]interface{})
 	dependChanMap := make(map[string]chan interface{})
 	for _, request := range requestsSlice {
-		opts := request.(map[string]interface{})
-		id := opts["id"].(string)
+		id := request["id"].(string)
 		if dependTimes, ok := dependTimesMap[id]; ok && dependTimes > 0 {
 			dependChanMap[id] = make(chan interface{})
 		}
-		go goroutineCurlHandler(opts, dependChanMap, dependTimesMap, resChan)
+		go goroutineCurlHandler(request, dependChanMap, dependTimesMap, resChan)
 	}
 
 	counter := 0
@@ -111,7 +108,7 @@ func goroutineCurlHandler(opts map[string]interface{}, chanMap map[string]chan i
 
 	var timeout uint8 = 10
 	if to, ok := opts["timeout"]; ok {
-		timeout = uint8(to.(float64))
+		timeout = uint8(to.(int))
 	}
 
 	headers := map[string]string{
@@ -203,10 +200,10 @@ import (
 	"fmt"
 )
 
-func getJsonString() string {
+func getJsonData() map[string]interface{} {
 	jsonMap := map[string]interface{}{
-		"timeout": 10,
-		"requests": []map[string]interface{}{
+		"timeout": "10",
+		"requests": []interface{}{
 			map[string]interface{}{
 				"id":      "1",
 				"type":    "post",
@@ -257,13 +254,11 @@ func getJsonString() string {
 			},
 		},
 	}
-	buffer, _ := json.Marshal(jsonMap)
-	str := string(buffer)
-	return str
+	return jsonMap
 }
 
 func main() {
-    res, err := library.GoroutineCurl(getJsonString())
+    res, err := library.GoroutineCurl(getJsonData())
 	if err == nil {
 		for k, v := range res["data"].(map[string]interface{}) {
 			log.Printf("result: k=%s, v=%v.\n", k, v)
