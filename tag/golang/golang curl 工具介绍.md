@@ -177,7 +177,9 @@ func (this *Request) Send(url string, method string) (*Response, error) {
 		response.Raw = resp
 	}
 
-	defer response.Raw.Body.Close()
+    if response.Raw != nil {
+		defer response.Raw.Body.Close()
+	}
 
 	response.parseHeaders()
 	if err := response.parseBody(); err != nil {
