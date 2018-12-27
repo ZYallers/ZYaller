@@ -32,7 +32,7 @@ ioreg -l | grep "DisplayProductID"
 
 ## 3. 将 10 进制数字转换为 16 进制
 
-可使用在线转换工具。
+可使用在线转换工具([点击这里](http://tool.oschina.net/hexconvert/))。
 
 ## 4. 新建文件夹
 
