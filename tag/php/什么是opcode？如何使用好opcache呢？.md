@@ -71,7 +71,7 @@ opcache.use_cwd (default "1")
 
 opcache.validate_timestamps (default "1")
 ;如果启用（设置为1），OPcache会在opcache.revalidate_freq设置的秒数去检测文件的时间戳（timestamp）检查脚本是否更新。
-如果这个选项被禁用（设置为0），opcache.revalidate_freq会被忽略，PHP文件永远不会被检查。这意味着如果你修改了你的代码，然后你把它更新到服务器上，再在浏览器上请求更新的代码对应的功能，你会看不到更新的效果，你必须使用 `opcache_reset()` 或者 `opcache_invalidate()` 函数来手动重置 OPcache。或者重重你的web服务器或者php-fpm 来使文件系统更改生效。
+如果这个选项被禁用（设置为0），opcache.revalidate_freq会被忽略，PHP文件永远不会被检查。这意味着如果你修改了你的代码，然后你把它更新到服务器上，再在浏览器上请求更新的代码对应的功能，你会看不到更新的效果，你必须使用 opcache_reset() 或者 opcache_invalidate() 函数来手动重置 OPcache。或者重重你的web服务器或者 php-fpm 来使文件系统更改生效。
 我强烈建议你在生产环境中设置为0，why？因为当你在更新服务器代码的时候，如果代码较多，更新操作是有些延迟的，在这个延迟的过程中必然出现老代码和新代码混合的情况，这个时候对用户请求的处理必然存在不确定性。最后，等所有的代码更新完毕后，再平滑重启PHP和web服务器。
 
 opcache.revalidate_freq (default "2")
@@ -345,4 +345,4 @@ return [
 - zend opcache的最佳设置:https://gywbd.github.io/posts/2016/1/best-config-for-zend-opcache.html
 - 使用 OpCache 提升 PHP 5.5+ 程序性能: https://laravel-china.org/topics/301/using-opcache-to-enhance-the-performance-of-the-php-55-program
 - opcache : http://www.ywnds.com/?p=5396
--图形化工具：http://www.blhere.com/1225.html
+- 图形化工具：http://www.blhere.com/1225.html
