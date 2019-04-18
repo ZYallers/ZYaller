@@ -123,7 +123,7 @@ git push origin feature/user-extension
 每次提交的改动建议添加「英文」关键词前缀，用于指示本次改动的主题。
 
 * Add 新加入的需求
-* Fix 修正Bug
+* Fixed 修正Bug
 * Change 修改功能
 * Update 完成任务或者模块变化做的更新
 * Remove 移除功能
