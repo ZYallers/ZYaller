@@ -2,24 +2,25 @@
 PHPer开发者和Linux系统下对curl命令绝对很熟悉，那golang呢？
 其实，golang的资源包`net/http`包已经基本实现了，这里封装了个curl类，方便使用。
 ```golang
-package library
+package tool
 
 import (
 	"bytes"
-	"encoding/json"
-	"errors"
-	"io"
-	"net/http"
-	"time"
-	"io/ioutil"
 	"context"
-	"strconv"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
 )
 
 // Request构造类
 type Request struct {
-	cli      *http.Client
-	req      *http.Request
+	client   *http.Client
+	request  *http.Request
 	Method   string
 	Url      string
 	Timeout  time.Duration
@@ -30,207 +31,186 @@ type Request struct {
 }
 
 // 创建一个Request实例
-func NewRequest() *Request {
-	return &Request{}
+func NewRequest(url string) *Request {
+	return &Request{Url: url, client: http.DefaultClient, Timeout: 30 * time.Second}
 }
 
 // 设置请求方法
-func (this *Request) SetMethod(method string) *Request {
-	this.Method = method
-	return this
+func (r *Request) SetMethod(method string) *Request {
+	r.Method = method
+	return r
 }
 
 // 设置请求地址
-func (this *Request) SetUrl(url string) *Request {
-	this.Url = url
-	return this
+func (r *Request) SetUrl(url string) *Request {
+	r.Url = url
+	return r
 }
 
 // 设置请求头
-func (this *Request) SetHeaders(headers map[string]string) *Request {
-	this.Headers = headers
-	return this
+func (r *Request) SetHeaders(headers map[string]string) *Request {
+	r.Headers = headers
+	return r
 }
 
 // 将用户自定义请求头添加到http.Request实例上
-func (this *Request) setHeaders() {
-	for k, v := range this.Headers {
-		this.req.Header.Set(k, v)
+func (r *Request) setHeaders() *Request {
+	var foundConnection, foundUserAgent bool
+	for k, v := range r.Headers {
+		r.request.Header.Set(k, v)
+		switch k {
+		case "Connection":
+			foundConnection = true
+		case "User-Agent":
+			foundUserAgent = true
+		}
 	}
+	if !foundConnection {
+		r.request.Header.Set("Connection", "close")
+	}
+	if !foundUserAgent {
+		r.request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36")
+	}
+	return r
 }
 
 // 设置请求cookies
-func (this *Request) SetCookies(cookies map[string]string) *Request {
-	this.Cookies = cookies
-	return this
+func (r *Request) SetCookies(cookies map[string]string) *Request {
+	r.Cookies = cookies
+	return r
 }
 
 // 将用户自定义cookies添加到http.Request实例上
-func (this *Request) setCookies() {
-	for k, v := range this.Cookies {
-		this.req.AddCookie(&http.Cookie{
-			Name:  k,
-			Value: v,
-		})
+func (r *Request) setCookies() *Request {
+	for k, v := range r.Cookies {
+		r.request.AddCookie(&http.Cookie{Name: k, Value: v})
 	}
+	return r
 }
 
 // 设置url查询参数
-func (this *Request) SetQueries(queries map[string]string) *Request {
-	this.Queries = queries
-	return this
+func (r *Request) SetQueries(queries map[string]string) *Request {
+	r.Queries = queries
+	return r
 }
 
 // 将用户自定义url查询参数添加到http.Request上
-func (this *Request) setQueries() {
-	q := this.req.URL.Query()
-	for k, v := range this.Queries {
+func (r *Request) setQueries() *Request {
+	q := r.request.URL.Query()
+	for k, v := range r.Queries {
 		q.Add(k, v)
 	}
-	this.req.URL.RawQuery = q.Encode()
+	r.request.URL.RawQuery = q.Encode()
+	return r
 }
 
 // 设置post请求的提交数据
-func (this *Request) SetPostData(postData map[string]interface{}) *Request {
-	this.PostData = postData
-	return this
+func (r *Request) SetPostData(postData map[string]interface{}) *Request {
+	r.PostData = postData
+	return r
 }
 
 // 发起get请求
-func (this *Request) Get() (*Response, error) {
-	return this.Send(this.Url, http.MethodGet)
+func (r *Request) Get() (*Response, error) {
+	return r.SetMethod(http.MethodGet).Send()
 }
 
 // 发起post请求
-func (this *Request) Post() (*Response, error) {
-	return this.Send(this.Url, http.MethodPost)
+func (r *Request) Post() (*Response, error) {
+	return r.SetMethod(http.MethodPost).Send()
 }
 
-//SetDialTimeOut 
-func (this *Request) SetTimeOut(timeout uint8) *Request {
-	this.Timeout = time.Duration(timeout)
-	return this
-}
-
-func (this *Request) elapsedTime(n int64, resp *Response) {
-	end := time.Now().UnixNano() / 1e6
-	resp.spendTime = end - n
+// SetDialTimeOut
+func (r *Request) SetTimeOut(timeout time.Duration) *Request {
+	if timeout > 0 && timeout < 30*time.Second {
+		r.Timeout = timeout
+	}
+	return r
 }
 
 // 发起请求
-func (this *Request) Send(url string, method string) (*Response, error) {
-	// Start time
-	start := time.Now().UnixNano() / 1e6
-
-	// 检测请求url是否填了
-	if url == "" {
-		return nil, errors.New("request url")
+func (r *Request) Send() (*Response, error) {
+	var body io.Reader
+	if len(r.PostData) > 0 {
+		if contentType, exist := r.Headers["Content-Type"]; exist {
+			switch strings.ToLower(contentType) {
+			case "application/json", "application/json;charset=utf-8":
+				if bts, err := json.Marshal(r.PostData); err != nil {
+					return nil, err
+				} else {
+					body = bytes.NewReader(bts)
+				}
+			case "application/x-www-form-urlencoded":
+				postData := url.Values{}
+				for k, v := range r.PostData {
+					postData.Add(k, fmt.Sprintf("%v", v))
+				}
+				body = strings.NewReader(postData.Encode())
+			}
+		}
 	}
-	// 检测请求方式是否填了
-	if method == "" {
-		return nil, errors.New("request method")
+
+	if req, err := http.NewRequest(r.Method, r.Url, body); err != nil {
+		return nil, err
+	} else {
+		ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
+		defer cancel()
+		r.request = req.WithContext(ctx)
 	}
-	// 初始化Response对象
-	response := NewResponse()
 
-	// Count elapsed time
-	defer this.elapsedTime(start, response)
+	r.setHeaders().setCookies().setQueries()
 
-	// 初始化http.Client对象
-	this.cli = &http.Client{}
-
-	// 加载用户自定义的post数据到http.Request
-	var payload io.Reader
-	if method == "POST" && this.PostData != nil {
-		if jData, err := json.Marshal(this.PostData); err != nil {
+	if resp, err := r.client.Do(r.request); err != nil {
+		return nil, err
+	} else {
+		res := NewResponse()
+		res.Raw = resp
+		defer res.Raw.Body.Close()
+		if err := res.parseBody(); err != nil {
 			return nil, err
 		} else {
-			payload = bytes.NewReader(jData)
+			return res, nil
 		}
-	} else {
-		payload = nil
 	}
-
-	// 超时时间处理，超时时间必须大于0小于等于30，默认最大30秒
-	if this.Timeout <= 0 || this.Timeout > 30 {
-		this.Timeout = time.Duration(30)
-	}
-	ctx, cancel := context.WithCancel(context.TODO())
-	time.AfterFunc(this.Timeout*time.Second, func() {
-		cancel()
-	})
-
-	if req, err := http.NewRequest(method, url, payload); err != nil {
-		return nil, err
-	} else {
-		req = req.WithContext(ctx)
-		this.req = req
-	}
-
-	this.setHeaders()
-	this.setCookies()
-	this.setQueries()
-
-	if resp, err := this.cli.Do(this.req); err != nil {
-		return nil, err
-	} else {
-		response.Raw = resp
-	}
-
-    if response.Raw != nil {
-		defer response.Raw.Body.Close()
-	}
-
-	response.parseHeaders()
-	if err := response.parseBody(); err != nil {
-		return nil, err
-	}
-
-	return response, nil
 }
 
 // Response 构造类
 type Response struct {
-	Raw       *http.Response
-	Headers   map[string]string
-	Body      string
-	spendTime int64
+	Raw     *http.Response
+	Headers map[string]string
+	Body    string
 }
 
 func NewResponse() *Response {
 	return &Response{}
 }
 
-func (this *Response) StatusCode() int {
-	if this.Raw == nil {
+func (r *Response) StatusCode() int {
+	if r.Raw == nil {
 		return 0
 	}
-	return this.Raw.StatusCode
+	return r.Raw.StatusCode
 }
 
-func (this *Response) IsOk() bool {
-	return this.StatusCode() == 200
+func (r *Response) IsOk() bool {
+	return r.StatusCode() == http.StatusOK
 }
 
-func (this *Response) SpendTime() string {
-	return strconv.Itoa(int(this.spendTime)) + "ms"
-}
-
-func (this *Response) parseHeaders() {
+func (r *Response) parseHeaders() {
 	headers := map[string]string{}
-	for k, v := range this.Raw.Header {
+	for k, v := range r.Raw.Header {
 		headers[k] = v[0]
 	}
-	this.Headers = headers
+	r.Headers = headers
 }
 
-func (this *Response) parseBody() error {
-	if body, err := ioutil.ReadAll(this.Raw.Body); err != nil {
+func (r *Response) parseBody() error {
+	if bts, err := ioutil.ReadAll(r.Raw.Body); err != nil {
 		return err
 	} else {
-		this.Body = string(body)
+		r.Body = string(bts)
+		return nil
 	}
-	return nil
 }
 ```
 写个demo简单介绍下如何使用。
@@ -239,7 +219,7 @@ package main
 
 import (
 	"log"
-	"project04/library"
+	"project04/tool"
 	"github.com/json-iterator/go"
 )
 
@@ -249,7 +229,7 @@ func main() {
 		"postid": "800125432030318719",
 		"type":   "yuantong",
 	}
-	resp, err := library.NewRequest().SetUrl(url).SetQueries(queries).SetTimeOut(3).Get()
+	resp, err := tool.NewRequest(url).SetQueries(queries).SetTimeOut(3).Get()
 	if err != nil {
 		log.Println(err)
 	} else {
