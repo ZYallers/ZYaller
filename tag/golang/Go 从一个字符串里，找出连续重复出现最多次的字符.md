@@ -35,4 +35,40 @@ func TestMaxContinueStr(t *testing.T) {
 --- PASS: TestMaxContinueStr (0.00s)
 PASS
 ```
+
+不久后，有网友问我，那重复出现次数最多的字符，不要求连续的要怎么写？虽然简单，但我还是那么热情。
+
+## 从一个字符串里，找出重复出现最多次的字符
+
+```go
+func maxStr(str string) (res string) {
+	arr := make(map[int32]int, len(str))
+	max := 1
+	res = string(str[0])
+	for _, v := range str {
+		arr[v]++
+		if arr[v] > max {
+			res = string(v)
+			max = arr[v]
+		}
+	}
+	return
+}
+```
+
+测试：
+```go
+func TestMaxStr(t *testing.T) {
+	t.Log(maxStr("aaabbba"))
+}
+```
+
+结果：
+```bash
+=== RUN   TestMaxStr
+    for_test.go:454: a
+--- PASS: TestMaxStr (0.00s)
+PASS
+```
+
 如果觉得有用可以Star一下！
