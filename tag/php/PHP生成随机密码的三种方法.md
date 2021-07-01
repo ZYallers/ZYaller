@@ -1,7 +1,5 @@
 # PHP生成随机密码的三种方法
 
-![image](http://imglf.nosdn.127.net/img/ZGhwZi92aUt2UE0rN21MZGZrVG9KK3AzTmtSYVBwV1BaZGJ4M0pNYUx4bGhJZGFxVTNOSk5RPT0.png?=imageView&thumbnail=500x0&quality=96&stripmeta=0&type=jpg%7Cwatermark&type=2)
-
 使用PHP开发应用程序，尤其是网站程序，常常需要生成随机密码，如用户注册生成随机密码，用户重置密码也需要生成一个随机的密码。随机密码也就是一串固定长度的字符串，这里我收集整理了几种生成随机字符串的方法，以供大家参考。
 
 #### 方法一
