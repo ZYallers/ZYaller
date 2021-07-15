@@ -97,7 +97,7 @@ func main() {
 
 例如:
 
-![IMG](https://ww1.sinaimg.cn/large/002bqljLgy1gshg6qxe4oj60u00epdml02.jpg)
+![IMG](https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/fe04254a58992702196043d7d69ce8955f86b729.png)
 
 标准要求：每个方法的第一个参数都将 context 作为第一个参数，并使用 ctx 变量名惯用语。
 
