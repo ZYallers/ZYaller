@@ -1,7 +1,6 @@
+[//]:# (2018/11/19 11:05|GOLANG|)
 # golang 文件以及文件夹路径相关操作
 > https://blog.csdn.net/wangshubo1989/article/details/77933654?locationNum=4&fps=1
-
-![IMG](https://img-blog.csdn.net/20170911152638909?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd2FuZ3NodWJvMTk4OQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 ### 获取目录中所有文件
 > 使用包：io/ioutil
