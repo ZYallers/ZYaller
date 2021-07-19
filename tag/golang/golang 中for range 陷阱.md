@@ -1,3 +1,4 @@
+[//]:# (2019/9/9 14:54|GOLANG|)
 # golang 中 for range 陷阱
 > 转载自：https://studygolang.com/articles/22495
 

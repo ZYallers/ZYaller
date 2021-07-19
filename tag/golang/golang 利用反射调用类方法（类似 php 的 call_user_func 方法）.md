@@ -1,5 +1,6 @@
+[//]:# (2019/6/25 13:55|GOLANG|)
 # golang 利用反射调用类方法（类似 php 的 call_user_func 方法）.md
-> http://www.xtgxiso.com/golang%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8%E7%B1%BB%E6%96%B9%E6%B3%95/
+> [张素杰](http://www.xtgxiso.com/golang%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8%E7%B1%BB%E6%96%B9%E6%B3%95)
 
 以前不知反射的用法，那是一直在写弱语言，现在用了go之后才知道反射的用途之一就是动态调用。
 

@@ -1,7 +1,6 @@
+[//]:# (2019/7/15 11:53|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/fdb009fe89fa592ef5f6a5fe4d72c5031d5c561a.png)
 # golang 我们应该用指针替代结构体的副本吗？
-> 转载自：https://studygolang.com/articles/21763
-
-![IMG](https://raw.githubusercontent.com/studygolang/gctt-images/master/go-should-i-use-a-pointer-instead-of-a-copy-of-my-struct-44b43b104963/1_IO4bo74w6aX7rKC_spjmvw.png)
+> https://studygolang.com/articles/21763
 
 对于许多 golang 开发者来说，考虑到性能，最佳实践是系统地使用指针而非结构体副本。我们将回顾两个用例，来理解使用指针而非结构体副本的影响。
 

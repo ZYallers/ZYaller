@@ -1,3 +1,4 @@
+[//]:# (2018/8/9 14:51|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/b2a84089a67022201ccdb1a1eab035964a834305.jpg)
 # golang 创建Redis连接池和Redis基础操作
 
 首先，在src下新建一个目录`redis-cli-pool`，接着新建一个`pool.go`文件，代码如下：

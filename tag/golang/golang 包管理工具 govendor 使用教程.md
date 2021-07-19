@@ -1,3 +1,4 @@
+[//]:# (2018/11/19 12:07|GOLANG|)
 # golang 包管理工具 govendor 使用教程
 > https://blog.csdn.net/benben_2015/article/details/80614873
 
