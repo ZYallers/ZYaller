@@ -1,5 +1,6 @@
+[//]:# (2021/3/15 15:50|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/94c5e2d985519b10957a1f74344845db64859761.jpg)
 # Go 面试官：单核 CPU，开两个 Goroutine，其中一个死循环，会怎么样？
-> 煎鱼 | https://eddycjy.com/posts/go/go-tips-goroutineloop/
+> [煎鱼](https://eddycjy.com/posts/go/go-tips-goroutineloop)
 
 今天的男主角，是与 Go 工程师有调度相关的知识，那就是 “**单核 CPU，开两个 Goroutine，其中一个死循环，会怎么样？**”
 

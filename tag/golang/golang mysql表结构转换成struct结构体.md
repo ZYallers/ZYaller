@@ -1,4 +1,6 @@
-# golang mysql表结构转换成struct结构体
+[//]:# (2020/5/25 17:03|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/f19d5bd98ba6ab613c852bad989d6d543ef88c6b.jpg)
+# go mysql表结构转换成struct结构体
+
 Goper们都会有这个痛点，在Model层读写数据都时候，需要给对应操作表映射一个结构体struct，然后再一一赋值给对应表字段。
 如果表才五六个字段还好，但现在开发项目中，都是有很多字段。。要撸的代码就多了。
 

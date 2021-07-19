@@ -1,3 +1,4 @@
+[//]:# (2020/5/25 17:02|GOLANG|)
 # golang curl 工具介绍
 PHPer开发者和Linux系统下对curl命令绝对很熟悉，那golang呢？
 其实，golang的资源包`net/http`包已经基本实现了，这里封装了个curl类，方便使用。

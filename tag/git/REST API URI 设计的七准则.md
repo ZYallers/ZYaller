@@ -1,6 +1,6 @@
+[//]:# (2017/7/20 12:33|GIT|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/a6cbda0fe6b6827676d249ffa236a797af0358d1.jpg)
 # REST API URI 设计的七准则
-
-> 转载自：[http://blog.restcase.com/7-rules-for-rest-api-uri-design]()
+> [Rest](http://blog.restcase.com/7-rules-for-rest-api-uri-design)
 
 在了解 REST API URI 设计的规则之前，让我们快速过一下我们将要讨论的一些术语。
 

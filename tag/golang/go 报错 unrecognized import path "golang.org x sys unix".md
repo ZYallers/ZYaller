@@ -1,4 +1,5 @@
-# unrecognized import path "golang.org/x/sys/unix"
+[//]:# (2019/6/11 11:40|GOLANG|)
+# go 报错 unrecognized import path "golang.org/x/sys/unix"
 > https://blog.csdn.net/wzygis/article/details/89030353
 
 安装的过程报错：

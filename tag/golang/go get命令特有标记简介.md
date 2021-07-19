@@ -1,3 +1,4 @@
+[//]:# (2018/6/13 18:54|GOLANG|)
 # go get命令特有标记简介
 > https://www.cnblogs.com/52php/p/6434771.html
 

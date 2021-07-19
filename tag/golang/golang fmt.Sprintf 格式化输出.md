@@ -1,3 +1,4 @@
+[//]:# (2019/5/21 11:00|GOLANG|)
 # golang fmt.Sprintf 格式化输出
 > http://c.biancheng.net/view/41.html
 

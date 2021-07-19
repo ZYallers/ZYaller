@@ -1,3 +1,4 @@
+[//]:# (2019/6/11 11:40|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/e0828a7f8a0a05aaea676c1046694fab8bbf48a6.jpg)
 # go build 完全攻略
 > http://c.biancheng.net/view/120.html
 
@@ -66,7 +67,7 @@ hello world
 ### 文件列表
 编译同目录的多个源码文件时，可以在 go build 的后面提供多个文件名，go build 会编译这些源码，输出可执行文件，“go build+文件列表”的格式如下：
 
-```bash
+```
 go build file1.go file2.go……
 ```
 

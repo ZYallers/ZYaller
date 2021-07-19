@@ -1,11 +1,8 @@
+[//]:# (2021/7/15 15:29|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/44b569dd6461b95637ab4f2717839f7d334118b9.jpg)
 # Go struct 不能犯的一个低级错误
-> 煎鱼 | https://eddycjy.com/posts/go/go-empty-struct
+> [煎鱼](https://eddycjy.com/posts/go/go-empty-struct)
 
-最近有一位读者，遇到了一个关于 struct 的新问题，不得解。
-
-大家一起来看看，建议大家在看到代码例子后先思考一下答案，再往下看。
-
-独立思考很重要。
+最近有一位读者，遇到了一个关于 struct 的新问题，不得解。大家一起来看看，建议大家在看到代码例子后先思考一下答案，再往下看，独立思考很重要。
 
 ## 疑惑的例子
 

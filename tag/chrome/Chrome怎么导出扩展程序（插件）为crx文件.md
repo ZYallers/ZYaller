@@ -1,6 +1,6 @@
+[//]:# (2018/6/28 12:38|API|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/b33abca8847476519041cff3ef49070da8457ebd.jpg)
 # Chrome怎么导出扩展程序（插件）为crx文件
-
-> 百度经验|<https://jingyan.baidu.com/article/9158e0004ff9bba25512284d.html>
+> [百度经验](https://jingyan.baidu.com/article/9158e0004ff9bba25512284d.html)
 
 现在都知道，现在Chrome浏览器的应用商店都打不开，进不去了，需要翻出去才能上。所以对于一些已经安装过的扩展程序（插件）想导出保存一下。因为Chrome默认安装在C盘，怕重装系统后又要重新安装这些插件了。Chrome其实也自带了这种功能。
 

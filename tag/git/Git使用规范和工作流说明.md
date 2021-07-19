@@ -1,5 +1,5 @@
+[//]:# (2019/4/18 11:27|GIT|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/32c28836e0f11d0154f4af90a7429853eb7ed274.jpg)
 # Git 使用规范和工作流说明
-
 > 在进入本文档的阅读和学习前，请确保你已通读 [Git 官方手册 V2 版](http://git-scm.com/book/zh/v2/)中核心前 5 个章节，并了解和掌握了 Git 的基本概念和使用方法。
 
 ## 0 声明

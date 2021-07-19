@@ -1,5 +1,6 @@
+[//]:# (2021/7/15 11:33|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/f026a61afc00ab3e3ce1a38b9b6f7271f1f806ff.jpg)
 # Go Context 的正确使用姿势
-> 煎鱼 | https://mp.weixin.qq.com/s/ohqLkq5n6dzOrmrBvc6tOA
+> [煎鱼](https://mp.weixin.qq.com/s/ohqLkq5n6dzOrmrBvc6tOA)
 
 在 Go 语言中，Goroutine（协程），也就是关键字 go 是一个家喻户晓的高级用法。这起的非常妙，说到 Go，就会想到这一门语言，想到 goroutine 这一关键字，而与之关联最深的就是 context。
 
