@@ -1,3 +1,4 @@
+[//]:# (2018/9/11 19:43|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/f638dfec236d0b88a3b7b65427231e00716a0f2d.png)
 # golang学习笔记
 
 ### 2018/6/14

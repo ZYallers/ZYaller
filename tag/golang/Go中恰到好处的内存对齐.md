@@ -1,8 +1,10 @@
-[//]:# (2021/7/19 10:27|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/fc1e1d49f9b301a74905abca2bf8395ac6dff8a1.png)
+[//]:# (2021/7/19 10:27|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/d6e3c684659df1bd8eae5200d1ba4c504e587c18.png)
 # Go中恰到好处的内存对齐
 > [煎鱼](https://github.com/eddycjy/blog/commit/d9ca77e2ff8adc2036234196deb42b62cb341c3b)
 
 ## 问题
+
+在开始之前，希望你计算一下 `Part1` 共占用的大小是多少呢？
 
 ```go
 type Part1 struct {
@@ -12,11 +14,7 @@ type Part1 struct {
 	d int64
 	e byte
 }
-```
 
-在开始之前，希望你计算一下 `Part1` 共占用的大小是多少呢？
-
-```go
 func main() {
 	fmt.Printf("bool size: %d\n", unsafe.Sizeof(bool(true)))
 	fmt.Printf("int32 size: %d\n", unsafe.Sizeof(int32(0)))

@@ -1,3 +1,4 @@
+[//]:# (2019/12/12 15:27|GOLANG|https://images.weserv.nl/?url=https://i0.hdslb.com/bfs/article/131cd5f889d6f56e5c9f9617c7c785dbead67bdc.jpg)
 # 为什么要从PHP转向Go
 
 ## 前言

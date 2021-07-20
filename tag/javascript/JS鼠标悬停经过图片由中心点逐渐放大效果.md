@@ -1,8 +1,9 @@
+[//]:# (2017/7/20 11:21|javascript|)
 # JS鼠标悬停经过图片由中心点逐渐放大效果
 
 原理很简单，就是调用jq的动画方法，鼠标经过时候，图片宽高放大，然后左右位置向外扩展。
 
-```
+```javascript
 //鼠标经过中心缩放图片效果
 $.checkImgLoadCompete = function(img, callback) {
 var timer = setInterval(function() {
