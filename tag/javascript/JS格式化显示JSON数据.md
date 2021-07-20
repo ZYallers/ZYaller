@@ -1,8 +1,9 @@
+[//]:# (2017/7/20 10:31|javascript|)
 # JS格式化显示JSON数据
 
 APP接口开发，需求提供一个接口测试页面给APP开发者，由于接口调用返回的是经过压缩处理过的JSON数据，直接显示在页面上阅读性比较差，但又不想搞个接口开放平台那样浪费时间，于是便想到直接对返回的JSON数据进行处理。
 
-```
+```javascript
 /* 格式化JSON源码(对象转换为JSON文本) */
 function formatJson(txt, compress/*是否为压缩模式*/) {
   var indentChar = '&nbsp;&nbsp;';
