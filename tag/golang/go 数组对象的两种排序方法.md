@@ -4,7 +4,7 @@
 
 业务上可能会经常遇到这样的逻辑，例如根据员工的年龄进行如大到小的排序分页列表显示。这里介绍两种方法，希望对你有帮助！
 
-···go
+```go
 type Person struct {
 	Name string `json:"name"`
 	Sex  string `json:"sex"`
