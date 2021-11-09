@@ -1,6 +1,6 @@
 [//]:# (2021/11/09 11:09|MaCBOOK|https://img0.baidu.com/it/u=3364720490,2135423737&fm=26&fmt=auto)
 # Mac OS X 清除DNS缓存
-> [Wasdns]https://www.cnblogs.com/qq952693358/p/9126860.html
+> [Wasdns](https://www.cnblogs.com/qq952693358/p/9126860.html)
 
 根据Mac OS X操作系统的版本选择以下命令：
 
