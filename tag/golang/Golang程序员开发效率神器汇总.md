@@ -1,4 +1,4 @@
-[//]:# (2021/11/09 10:28|GOLANG|https://img2.baidu.com/it/u=1764514498,1537292893&fm=26&fmt=auto)
+[//]:# (2021/11/09 10:28|GOLANG|https://img0.baidu.com/it/u=3829542296,4292571468&fm=26&fmt=auto)
 # Golang程序员开发效率神器汇总
 > [掘金](https://juejin.cn/post/6844904007169736718)
 
