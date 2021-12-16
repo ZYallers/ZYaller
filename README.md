@@ -147,7 +147,7 @@ All kinds of technical problems and solutions recorded in the code process can b
     23. [vim常用技巧](https://github.com/ZYallers/ZYaller/blob/master/tag/linux/vim%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7.md)
 >
 - [**Mysql**](https://github.com/ZYallers/ZYaller/tree/master/tag/mysql)
-    1 [MySQL timestamp设置默认值报错Invalid default value原因及解决方案](https://github.com/ZYallers/ZYaller/blob/master/tag/mysql/MySQL%20timestamp%E8%AE%BE%E7%BD%AE%E9%BB%98%E8%AE%A4%E5%80%BC%E6%8A%A5%E9%94%99Invalid%20default%20value%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88.md)
+    1. [MySQL timestamp设置默认值报错Invalid default value原因及解决方案](https://github.com/ZYallers/ZYaller/blob/master/tag/mysql/MySQL%20timestamp%E8%AE%BE%E7%BD%AE%E9%BB%98%E8%AE%A4%E5%80%BC%E6%8A%A5%E9%94%99Invalid%20default%20value%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88.md)
     2. [MySQL使用什么函数可以将出现的NULL改为一个默认值？](https://github.com/ZYallers/ZYaller/blob/master/tag/mysql/MySQL%E4%BD%BF%E7%94%A8%E4%BB%80%E4%B9%88%E5%87%BD%E6%95%B0%E5%8F%AF%E4%BB%A5%E5%B0%86%E5%87%BA%E7%8E%B0%E7%9A%84NULL%E6%94%B9%E4%B8%BA%E4%B8%80%E4%B8%AA%E9%BB%98%E8%AE%A4%E5%80%BC%EF%BC%9F.md)
     3. [MySQL单表百万数据记录分页性能优化](https://github.com/ZYallers/ZYaller/blob/master/tag/mysql/MySQL%E5%8D%95%E8%A1%A8%E7%99%BE%E4%B8%87%E6%95%B0%E6%8D%AE%E8%AE%B0%E5%BD%95%E5%88%86%E9%A1%B5%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96.md)
     4. [MySQL在100万级别数据中随机获取一条或多条记录之RAND()优化](https://github.com/ZYallers/ZYaller/blob/master/tag/mysql/MySQL%E5%9C%A8100%E4%B8%87%E7%BA%A7%E5%88%AB%E6%95%B0%E6%8D%AE%E4%B8%AD%E9%9A%8F%E6%9C%BA%E8%8E%B7%E5%8F%96%E4%B8%80%E6%9D%A1%E6%88%96%E5%A4%9A%E6%9D%A1%E8%AE%B0%E5%BD%95%E4%B9%8BRAND()%E4%BC%98%E5%8C%96.md)
