@@ -51,6 +51,7 @@ All kinds of technical problems and solutions recorded in the code process can b
     41. [四舍五入在go语言中为何如此困难](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/%E5%9B%9B%E8%88%8D%E4%BA%94%E5%85%A5%E5%9C%A8go%E8%AF%AD%E8%A8%80%E4%B8%AD%E4%B8%BA%E4%BD%95%E5%A6%82%E6%AD%A4%E5%9B%B0%E9%9A%BE.md)
     42. [延长变量的生命周期](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/%E5%BB%B6%E9%95%BF%E5%8F%98%E9%87%8F%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.md)
     43. [这道题竟然只有 12% 的人答对](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/%E8%BF%99%E9%81%93%E9%A2%98%E7%AB%9F%E7%84%B6%E5%8F%AA%E6%9C%89%2012%25%20%E7%9A%84%E4%BA%BA%E7%AD%94%E5%AF%B9.md)
+    44. [Golang 优雅的检查channel关闭](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Golang%20%E4%BC%98%E9%9B%85%E7%9A%84%E6%A3%80%E6%9F%A5channel%E5%85%B3%E9%97%AD.md)
 > 
 - [**PHP**](https://github.com/ZYallers/ZYaller/tree/master/tag/php)
     1. [PHP 中的浮点数](https://github.com/ZYallers/ZYaller/blob/master/tag/php/%20PHP%20%E4%B8%AD%E7%9A%84%E6%B5%AE%E7%82%B9%E6%95%B0.md)
