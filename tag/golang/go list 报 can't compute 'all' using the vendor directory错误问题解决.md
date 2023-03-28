@@ -1,7 +1,5 @@
-[//]: # "2022/1/17 10:40|GOLANG|"
-
+[//]:# "2022/1/17 10:40|GOLANG|"
 # go list 报 can't compute 'all' using the vendor directory错误问题解决
-
 > [CSDN](https://blog.csdn.net/zf766045962/article/details/106472122)
 
 ### 问题一
