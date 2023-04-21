@@ -50,7 +50,7 @@ Redis 进行 RDB 时，会 fork 一个子进程来进行数据持久化，这样
 
 好，下面我们一起来看下这张图：
 
-![IMG](raw.githubusercontent.com/ZYallers/ZYaller/master/upload/image/2023/1058428-20221026103622028-1082924086.png)
+![IMG](http://raw.githubusercontent.com/ZYallers/ZYaller/master/upload/image/2023/1058428-20221026103622028-1082924086.png)
 
 从图中我们可以清晰的看到，Redis 备份时，fork 了一个子进程，子进程去做持久化的工作，子进程中的 key 指向了 8 点那一刻的数据，后面 k1 的值修改了，redis 会在内存中创建一个新的值，然后主进程 k1 指针指向新的值，子进程 k1 指针依然指向 19，这样 Redis 持久化的就是 8 点那一刻的数据，不会发生变化。同时，从图中我们也可以看到，Redis 持久化时并不是将内存中数据全部拷贝一份进行备份。
 
