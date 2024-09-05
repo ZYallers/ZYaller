@@ -158,5 +158,5 @@ K8s Controller 中的这段代码比我们上面的例子又要多一个细节�
 ## Reference
 
 1. **Go Specification:** *https://go.dev/ref/spec#Select_statements*
-2. **K8s Controller:***https://github.com/kubernetes/kubernetes/blob/7df5940bf920349a3c158bcd425e4e4cf97096da/pkg/controller/tainteviction/taint_eviction.go#L355*
+2. **K8s Controller:** https://github.com/kubernetes/kubernetes/blob/7df5940bf920349a3c158bcd425e4e4cf97096da/pkg/controller/tainteviction/taint_eviction.go#L355
 
