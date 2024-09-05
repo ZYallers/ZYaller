@@ -137,7 +137,7 @@ end
 
 这个问题早就有人想到了，并给出了解决方案，开源框架 Redisson 解决了这个问题。
 
-![IMG](https://raw.githubusercontent.com/ZYallers/ZYaller/master/upload/image/2023/1058428-20221026103622024-496525783.png)
+![IMG](../.././upload/image/2023/1058428-20221026103622024-496525783.png)
 
 Redisson 在方法执行期间，会不断的检测锁是否到期，如果发现锁快要到期，但是方法还没有执行完成，便会延长锁的过期时间，从而解决了锁超时释放问题。
 
