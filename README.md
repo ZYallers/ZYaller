@@ -8,6 +8,7 @@
 与他人分享，共同学习，并记录在成长过程中。
 
 ### TAG
+
 - [**API**](https://github.com/ZYallers/ZYaller/tree/master/tag/golang)
   - [Elasticsearch Kibana查询语法](https://github.com/ZYallers/ZYaller/blob/master/tag/api/Elasticsearch%20Kibana%E6%9F%A5%E8%AF%A2%E8%AF%AD%E6%B3%95.md)
   - [HTTP状态码](https://github.com/ZYallers/ZYaller/blob/master/tag/api/HTTP%E7%8A%B6%E6%80%81%E7%A0%81.md)
@@ -28,10 +29,12 @@
   - [Go struct 不能犯的一个低级错误](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20struct%20%E4%B8%8D%E8%83%BD%E7%8A%AF%E7%9A%84%E4%B8%80%E4%B8%AA%E4%BD%8E%E7%BA%A7%E9%94%99%E8%AF%AF.md)
   - [Go 为什么不在语言层面支持 map 并发？](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%9C%A8%E8%AF%AD%E8%A8%80%E5%B1%82%E9%9D%A2%E6%94%AF%E6%8C%81%20map%20%E5%B9%B6%E5%8F%91%EF%BC%9F.md)
   - [Go 从一个字符串里，找出连续重复出现最多次的字符](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E4%BB%8E%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%E9%87%8C%EF%BC%8C%E6%89%BE%E5%87%BA%E8%BF%9E%E7%BB%AD%E9%87%8D%E5%A4%8D%E5%87%BA%E7%8E%B0%E6%9C%80%E5%A4%9A%E6%AC%A1%E7%9A%84%E5%AD%97%E7%AC%A6.md)
+  - [Go 并发控制：errgroup 详解](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%EF%BC%9Aerrgroup%20%E8%AF%A6%E8%A7%A3.md)
   - [Go 性能加速器：你需要知道的 5 个诀窍和技巧](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E6%80%A7%E8%83%BD%E5%8A%A0%E9%80%9F%E5%99%A8%EF%BC%9A%E4%BD%A0%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%205%20%E4%B8%AA%E8%AF%80%E7%AA%8D%E5%92%8C%E6%8A%80%E5%B7%A7.md)
   - [Go 泛型简明入门](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E6%B3%9B%E5%9E%8B%E7%AE%80%E6%98%8E%E5%85%A5%E9%97%A8.md)
   - [Go 源码里的这些 ::go- 指令，你知道吗？](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E6%BA%90%E7%A0%81%E9%87%8C%E7%9A%84%E8%BF%99%E4%BA%9B%20::go-%20%E6%8C%87%E4%BB%A4%EF%BC%8C%E4%BD%A0%E7%9F%A5%E9%81%93%E5%90%97%EF%BC%9F.md)
   - [Go 通过反射实现指针类型的拷贝](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E9%80%9A%E8%BF%87%E5%8F%8D%E5%B0%84%E5%AE%9E%E7%8E%B0%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%8B%B7%E8%B4%9D.md)
+  - [Go 错误处理：Defer、Panic、Recover 三剑客](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%EF%BC%9ADefer%E3%80%81Panic%E3%80%81Recover%20%E4%B8%89%E5%89%91%E5%AE%A2.md)
   - [Go 面试官：单核 CPU，开两个 Goroutine，其中一个死循环，会怎么样？](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Go%20%E9%9D%A2%E8%AF%95%E5%AE%98%EF%BC%9A%E5%8D%95%E6%A0%B8%20CPU%EF%BC%8C%E5%BC%80%E4%B8%A4%E4%B8%AA%20Goroutine%EF%BC%8C%E5%85%B6%E4%B8%AD%E4%B8%80%E4%B8%AA%E6%AD%BB%E5%BE%AA%E7%8E%AF%EF%BC%8C%E4%BC%9A%E6%80%8E%E4%B9%88%E6%A0%B7%EF%BC%9F.md)
   - [Golang 优雅的检查channel关闭](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Golang%20%E4%BC%98%E9%9B%85%E7%9A%84%E6%A3%80%E6%9F%A5channel%E5%85%B3%E9%97%AD.md)
   - [Golang程序员开发效率神器汇总](https://github.com/ZYallers/ZYaller/blob/master/tag/golang/Golang%E7%A8%8B%E5%BA%8F%E5%91%98%E5%BC%80%E5%8F%91%E6%95%88%E7%8E%87%E7%A5%9E%E5%99%A8%E6%B1%87%E6%80%BB.md)
@@ -212,9 +215,11 @@
   - [redis队列缓存+sql批量入库+php离线整合（高并发简单解决方案）](https://github.com/ZYallers/ZYaller/blob/master/tag/redis/redis%E9%98%9F%E5%88%97%E7%BC%93%E5%AD%98+sql%E6%89%B9%E9%87%8F%E5%85%A5%E5%BA%93+php%E7%A6%BB%E7%BA%BF%E6%95%B4%E5%90%88%EF%BC%88%E9%AB%98%E5%B9%B6%E5%8F%91%E7%AE%80%E5%8D%95%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%89.md)
   - [判断Redis有序集合中是否存在某个成员的方法](https://github.com/ZYallers/ZYaller/blob/master/tag/redis/%E5%88%A4%E6%96%ADRedis%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%E4%B8%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E6%9F%90%E4%B8%AA%E6%88%90%E5%91%98%E7%9A%84%E6%96%B9%E6%B3%95.md)
   - [大话Redis进阶－更新缓存的问题](https://github.com/ZYallers/ZYaller/blob/master/tag/redis/%E5%A4%A7%E8%AF%9DRedis%E8%BF%9B%E9%98%B6%EF%BC%8D%E6%9B%B4%E6%96%B0%E7%BC%93%E5%AD%98%E7%9A%84%E9%97%AE%E9%A2%98.md)
+  - [线上踩坑：Redis集群调用Lua脚本](https://github.com/ZYallers/ZYaller/blob/master/tag/redis/%E7%BA%BF%E4%B8%8A%E8%B8%A9%E5%9D%91%EF%BC%9ARedis%E9%9B%86%E7%BE%A4%E8%B0%83%E7%94%A8Lua%E8%84%9A%E6%9C%AC.md)
   - [设置redis-cli命令到PATH中](https://github.com/ZYallers/ZYaller/blob/master/tag/redis/%E8%AE%BE%E7%BD%AEredis-cli%E5%91%BD%E4%BB%A4%E5%88%B0PATH%E4%B8%AD.md)
 
 ### CODE
+
 拉取项目代码，在开发分支下提交代码，并在通过审查后将其合并到主分支中。就是这样。
 
 ### CONTACT
