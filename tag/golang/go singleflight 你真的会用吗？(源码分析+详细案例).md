@@ -214,7 +214,7 @@ func TestSingleFlight(t *testing.T) {
 	)
 
 	for i := 0; i < n; i++ {
-    wg.Add(1)
+    		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			r, err, shared := sf.Do(k, func() (interface{}, error) {
@@ -292,7 +292,7 @@ func TestSingleFlight(t *testing.T) {
 	)
 
 	for i := 0; i < int(n); i++ {
-    wg.Add(1)
+    		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			_, err, _ := sf.Do(k, func() (interface{}, error) {
@@ -340,7 +340,7 @@ func TestSingleFlight(t *testing.T) {
 	)
 
 	for i := 0; i < int(n); i++ {
-    wg.Add(1)
+    		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			_, err, _ := sf.Do(k, func() (interface{}, error) {
@@ -391,7 +391,7 @@ func TestSingleFlight(t *testing.T) {
 	)
 
 	for i := 0; i < int(n); i++ {
-    wg.Add(1)
+    		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			ch := sf.DoChan(k, func() (interface{}, error) {
