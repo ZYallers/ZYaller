@@ -1,14 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
-    <meta http-equiv="Page-Enter" content="revealTrans(Duration=2.0,Transition=1)"/>
-    <meta http-equiv="Page-Exit" content="revealTrans(Duration=2.0,Transition=0)"/>
-    <title>loading...</title>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZYALLER · 博客</title>
+<meta name="description" content="传承一生一点一滴 —— 记录生活问题与解决方案，与他人分享，共同学习成长">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="assets/vendor/highlight-theme.min.css">
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+<div id="bgLayer" aria-hidden="true"></div>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="#/">
+      <img class="logo-mark" src="static/image/logo.png" alt="ZYALLER">
+      <span class="logo-text">ZYALLER<span class="logo-sub">传承一生一点一滴</span></span>
+    </a>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="searchInput" type="search" placeholder="搜索文章标题或内容…" autocomplete="off">
+    </div>
+    <div class="header-stats" id="headerStats"></div>
+  </div>
+</header>
+
+<main class="container" id="app"></main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>ZYALLER · 传承一生一点一滴</p>
+    <p class="muted">记录生活问题与解决方案，与他人分享，共同学习成长</p>
+    <p class="muted">
+        &COPY;2026 <a href="https://www.zyall.com/" target="_blank">ZYall</a> All Rights Reserved
+        <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备15018117号-1</a>
+    </p>
+  </div>
+</footer>
+
+<button id="backTop" title="回到顶部">↑</button>
+
+<script src="assets/vendor/marked.min.js"></script>
+<script src="assets/vendor/highlight.min.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
 <script>
     var _hmt = _hmt || [];
     (function() {
@@ -16,16 +51,6 @@
       hm.src = "https://hm.baidu.com/hm.js?aa18d0d57f08cb1076422a66da9de76e";
       var s = document.getElementsByTagName("script")[0]; 
       s.parentNode.insertBefore(hm, s);
-    })();
-</script>
-<script>
-    (function () {
-        var loadingArr = [];
-        for (var i = 1; i < 8; i++) {
-            loadingArr.push(i);
-        }
-        var selected = loadingArr[Math.floor(Math.random() * loadingArr.length)];
-        window.location.href = '/html/loading/' + selected + '.html';
     })();
 </script>
 </body>
