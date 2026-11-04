@@ -58,6 +58,27 @@
     </svg>`
   );
 
+  // Markdown 里常见的语言标识拼写错误 / 别名 → highlight.js 认识的语言名
+  const LANG_ALIASES = {
+    javacript: 'javascript', javscript: 'javascript', javasript: 'javascript',
+    js: 'javascript', jsx: 'javascript', node: 'javascript',
+    ts: 'typescript', golang: 'go', sh: 'bash', ba: 'bash', shell: 'bash',
+    sq: 'sql', mysql: 'sql', yml: 'yaml', text: 'plaintext', txt: 'plaintext',
+  };
+
+  // 高亮代码块：先规范化语言名，无法识别的直接去掉标记，避免控制台刷告警
+  function highlightCode(root) {
+    root.querySelectorAll('pre code').forEach(block => {
+      const cls = Array.from(block.classList).find(c => c.startsWith('language-'));
+      if (cls) {
+        let lang = cls.slice('language-'.length).toLowerCase().trim();
+        lang = LANG_ALIASES[lang] || lang;
+        block.className = hljs.getLanguage(lang) ? `language-${lang}` : '';
+      }
+      try { hljs.highlightElement(block); } catch (e) { /* ignore */ }
+    });
+  }
+
   // 给正文里的图片兜底：加载失败换成占位图，并把原地址放进 tooltip
   function bindContentImages(root) {
     root.querySelectorAll('.md img').forEach(img => {
@@ -215,9 +236,7 @@
           ${next ? `<a href="#/article/${encodeURIComponent(next.cat)}/${encodeURIComponent(next.file)}" style="text-align:right">${esc(next.title)} →</a>` : '<span></span>'}
         </div>
       </div>`;
-    app.querySelectorAll('pre code').forEach(block => {
-      try { hljs.highlightElement(block); } catch (e) { /* ignore */ }
-    });
+    highlightCode(app);
     bindContentImages(app);
     window.scrollTo(0, 0);
   }

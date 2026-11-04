@@ -3,14 +3,14 @@
 
 **string --> binary array**
 
-```javacript
+```javascript
 var str = 'test string.';
 var arr = Array.prototype.map.call( str , function( c ) { return c.charCodeAt(0); } );
 ```
 
 **binary array --> string**
 
-```javacript
+```javascript
 String.fromCharCode.apply( null , arr );
 ```
 

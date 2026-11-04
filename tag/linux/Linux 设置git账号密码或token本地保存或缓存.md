@@ -9,7 +9,7 @@
 
 我们平日通常拿到token之后是这样拼接出远程仓库的地址，比如：
 
-```https://$username:$token@github.com/$username/repo.git```
+`https://$username:$token@github.com/$username/repo.git`
 
 从以上地址克隆或使用git remote add 的方式关联本地仓库，之后都不需要输入用户名和密码信息。
 
